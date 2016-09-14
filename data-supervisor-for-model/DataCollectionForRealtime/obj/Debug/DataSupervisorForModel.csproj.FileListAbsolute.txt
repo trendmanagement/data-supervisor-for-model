@@ -1,0 +1,60 @@
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe.config
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\Interop.CQG.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.ResolveComReference.cache
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.exe
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.pdb
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csprojResolveAssemblyReference.cache
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.RealtimeDataManagement.resources
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.Properties.Resources.resources
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.GenerateResource.Cache
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.pdb
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\AutoMapper.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.Core.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\AutoMapper.xml
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.xml
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.xml
+C:\Users\Steve Pickering\Desktop\DataCollectionForRealtime\DataCollectionForRealtime\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe.config
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\Interop.CQG.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.ResolveComReference.cache
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.exe
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.pdb
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csprojResolveAssemblyReference.cache
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.RealtimeDataManagement.resources
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.Properties.Resources.resources
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.GenerateResource.Cache
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.pdb
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\AutoMapper.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.Core.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\AutoMapper.xml
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.xml
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.xml
+C:\Users\Steve Pickering\Desktop\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.xml
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe.config
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\Interop.CQG.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.ResolveComReference.cache
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.exe
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.pdb
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.exe
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\DataCollectionForRealtime.pdb
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\AutoMapper.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.Core.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.dll
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\AutoMapper.xml
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.xml
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.xml
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.xml
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csprojResolveAssemblyReference.cache
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.RealtimeDataManagement.resources
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.Properties.Resources.resources
+D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.GenerateResource.Cache
