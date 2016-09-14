@@ -1,4 +1,4 @@
-﻿namespace DataCollectionForRealtime
+﻿namespace DataSupervisorForModel
 {
     partial class RealtimeDataManagement
     {

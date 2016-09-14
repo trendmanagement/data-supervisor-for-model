@@ -58,3 +58,22 @@ D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime
 D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.RealtimeDataManagement.resources
 D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataCollectionForRealtime.Properties.Resources.resources
 D:\Data Supervisor For Model\Data Supervisor For Model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.GenerateResource.Cache
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\Interop.CQG.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.ResolveComReference.cache
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csproj.GenerateResource.Cache
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\AutoMapper.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.Core.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.dll
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\AutoMapper.xml
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\MongoDB.Bson.xml
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\MongoDB.Driver.xml
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\Newtonsoft.Json.xml
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\DataSupervisorForModel.exe.config
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\DataSupervisorForModel.exe
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\DataSupervisorForModel.pdb
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.exe
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.pdb
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.RealtimeDataManagement.resources
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.Properties.Resources.resources

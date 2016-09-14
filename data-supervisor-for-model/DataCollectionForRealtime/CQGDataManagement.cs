@@ -8,7 +8,7 @@ using CQG;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace DataCollectionForRealtime
+namespace DataSupervisorForModel
 {
     class CQGDataManagement
     {

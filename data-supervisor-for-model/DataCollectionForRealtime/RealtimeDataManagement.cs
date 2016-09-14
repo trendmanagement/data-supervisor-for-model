@@ -12,7 +12,7 @@ using MongoDB.Driver;
 using System.Net;
 using System.Net.Sockets;
 
-namespace DataCollectionForRealtime
+namespace DataSupervisorForModel
 {
     public partial class RealtimeDataManagement : Form
     {

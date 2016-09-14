@@ -8,7 +8,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using MongoDB.Bson.Serialization;
 
-namespace DataCollectionForRealtime
+namespace DataSupervisorForModel
 {
     class MongoDBConnectionAndSetup
     {

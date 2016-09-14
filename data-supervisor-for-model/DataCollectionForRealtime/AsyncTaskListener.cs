@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataCollectionForRealtime
+namespace DataSupervisorForModel
 {
     /// <summary>
     /// This helper class carries three roles for asynchronous tasks:
