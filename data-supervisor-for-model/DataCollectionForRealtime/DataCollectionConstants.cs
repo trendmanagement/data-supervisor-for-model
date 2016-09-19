@@ -14,7 +14,7 @@ namespace DataSupervisorForModel
 
         public const double EPSILON = 0.000000001;
 
-        public const double OPTION_ZERO_PRICE = 0.000001;
+        public const double ZERO_PRICE = 0.000001;
 
         public const double OPTION_DELTA_MULTIPLIER = 100;
 
@@ -27,19 +27,19 @@ namespace DataSupervisorForModel
 
     }
 
-    public enum OPTION_EXPRESSION_TYPES
-    {
-        OPTION_EXPRESSION_RISK_FREE_RATE,
-        SPREAD_LEG_PRICE,
-    };
+    //public enum OPTION_EXPRESSION_TYPES
+    //{
+    //    OPTION_EXPRESSION_RISK_FREE_RATE,
+    //    SPREAD_LEG_PRICE,
+    //};
 
-    public enum OPTION_SPREAD_CONTRACT_TYPE
-    {
-        CALL,
-        PUT,
-        FUTURE,
-        BLANK
-    };
+    //public enum OPTION_SPREAD_CONTRACT_TYPE
+    //{
+    //    CALL,
+    //    PUT,
+    //    FUTURE,
+    //    BLANK
+    //};
 
     //public enum CQG_REFRESH_STATE
     //{

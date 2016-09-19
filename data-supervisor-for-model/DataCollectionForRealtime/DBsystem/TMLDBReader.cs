@@ -55,36 +55,20 @@ namespace DataSupervisorForModel
 
         public bool GetContracts(
             ref List<Instrument> instrumentList,
-            ref ConcurrentDictionary<long, List<Contract>> contractHashTableByInstId)
+            ref Dictionary<long, List<Contract>> contractHashTableByInstId, DateTime todaysDate)
         {
 
             try
             {
-                //long[] instrumentIds = new long[instrumentList.Count];
-                //int i = 0;
-                //foreach (Instrument instrument in instrumentList)
-                //{
-                //    instrumentIds[i] = instrument.idinstrument;
-                //    i++;
-                //}
-
-                //IEnumerable<tblcontract> contractQuery =
-                //    Context.tblcontracts
-                //    .Where(c => instrumentIds.Contains(c.idinstrument))
-                //    .Where(c => c.expirationdate.CompareTo(new DateTime(2016, 9, 1)) >= 0)
-                //    .OrderBy(c => c.expirationdate).TakeWhile(3)
-                //    ;
-
                 Mapper.Initialize(cfg => cfg.CreateMap<tblcontract, Contract>());
 
                 foreach (Instrument instrument in instrumentList)
                 {
-                    IEnumerable<tblcontract> contractQuery =
+                    IQueryable<tblcontract> contractQuery =
                         Context.tblcontracts
                         .Where(c => c.idinstrument == instrument.idinstrument)
-                        .Where(c => c.expirationdate.CompareTo(new DateTime(2016, 9, 1)) >= 0)
-                        .OrderBy(c => c.expirationdate).Take(4)
-                        ;
+                        .Where(c => c.expirationdate.CompareTo(todaysDate) >= 0)
+                        .OrderBy(c => c.expirationdate).Take(4);
 
                     foreach (tblcontract contractFromDb in contractQuery)
                     {
@@ -103,46 +87,12 @@ namespace DataSupervisorForModel
 
                             contractList.Add(contract);
 
-                            contractHashTableByInstId.TryAdd(contract.idinstrument, contractList);
+                            contractHashTableByInstId.Add(contract.idinstrument, contractList);
                         }
 
 
                     }
                 }
-                    //where contracts. == 2
-                    //|| inst.optionenabled == 4
-                    //|| inst.optionenabled == 8
-                    //select inst;
-
-                //instrumentQuery.ToList();
-
-                
-
-
-                //IEnumerable<tblinstrument> instrumentQuery =
-                //   from inst in Context.tblinstruments
-                //   where inst.optionenabled == 2
-                //   || inst.optionenabled == 4
-                //   || inst.optionenabled == 8
-                //   select inst;
-
-
-                //List<tblinstrument> tblinstrumentList = Context.tblinstruments.ToList();
-
-                //Mapper.Initialize(cfg => cfg.CreateMap<tblinstrument, Instrument>());
-
-                //for (int i = 0; i < tblinstrumentList.Count(); i++)
-                //{
-                //    Instrument instrument = Mapper.Map<Instrument>(tblinstrumentList[i]);
-
-                //    instrumentList.Add(instrument);
-                //}
-
-                //for (int i = 0; i < instrumentList.Count(); i++)
-                //{
-                //    instrumentHashTable.TryAdd(instrumentList[i].idinstrument, instrumentList[i]);
-                //}
-
 
             }
             catch (InvalidOperationException)
@@ -157,13 +107,44 @@ namespace DataSupervisorForModel
             return true;
         }
 
-        public bool GetTblInstruments(ref ConcurrentDictionary<long, Instrument> instrumentHashTable,
+
+        public DateTime GetContractPreviousDateTime(
+            long idcontract)
+        {
+
+            try
+            {
+                tbldailycontractsettlement dailyContractSettlement =
+                    Context.tbldailycontractsettlements
+                    .Where(c => c.idcontract == idcontract)
+                    //.Where(c => c.date.CompareTo(new DateTime(2016, 9, 1)) >= 0)
+                    .OrderByDescending(c => c.date).First();//Take(1);
+
+                if(dailyContractSettlement != null)
+                {
+                    return dailyContractSettlement.date;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return DateTime.Today.AddDays(-1);
+            }
+            catch (SqlException)
+            {
+                return DateTime.Today.AddDays(-1);
+            }
+
+            return DateTime.Today.AddDays(-1);
+        }
+
+
+        public bool GetTblInstruments(ref Dictionary<long, Instrument> instrumentHashTable,
             ref List<Instrument> instrumentList)
         {
 
             try
             {
-                IEnumerable<tblinstrument> instrumentQuery =
+                IQueryable<tblinstrument> instrumentQuery =
                     from inst in Context.tblinstruments
                     where inst.optionenabled == 2
                     || inst.optionenabled == 4
@@ -182,7 +163,7 @@ namespace DataSupervisorForModel
 
                     instrumentList.Add(instrument);
 
-                    instrumentHashTable.TryAdd(instrument.idinstrument, instrument);
+                    instrumentHashTable.Add(instrument.idinstrument, instrument);
                 }
 
 

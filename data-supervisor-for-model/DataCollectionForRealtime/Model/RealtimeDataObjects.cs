@@ -20,7 +20,7 @@ namespace DataSupervisorForModel
         public double low { get; set; }
         public double close { get; set; }
         public int volume { get; set; }
-        public int cumulativeVolume { get; set; }
+        //public int cumulativeVolume { get; set; }
 
         public bool errorBar { get; set; }
     };
@@ -43,65 +43,22 @@ namespace DataSupervisorForModel
 
     public class Mongo_OptionSpreadExpression
     {
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId Id { get; set; }
+        //[BsonRepresentation(BsonType.ObjectId)]
+        //public ObjectId Id { get; set; }
 
+        [BsonId]
+        [BsonRepresentation(BsonType.Int64)]
+        public long _id { get; set; }
 
         public Contract contract { get; set; }
 
-        public Instrument instrument { get; set; }
+        
 
 
         //[BsonElement("cqgSymbol")]
         //public string cqgSymbol { get; set; }
 
-        public bool stopUpdating = false;
-
-        //public int idInstrument;
-
-        
-
-        //public Instrument instrument;
-
-        //this is used for margin calculation from option payoff chart
-        //******************************************
-        //public int optionMonthInt;
-        //public int optionYear;
-
-        //public int futureContractMonthInt;
-        //public int futureContractYear;
-        //******************************************
-
-        public OPTION_EXPRESSION_TYPES optionExpressionType;
-
-        //public OPTION_SPREAD_CONTRACT_TYPE callPutOrFuture;
-
-        public char callPutOrFutureChar;
-
-
-        public int optionId; //only filled if contract is an option
-        public int underlyingFutureId;
-
-        public int substituteOptionId; //only filled if contract is an option
-        public int substituteUnderlyingFutureId;
-
-
-        public int idcontract; // futureId; //only filled if contract is a future
-        public int substituteFutureId;
-
-
-        public double strikePrice;
-
-        public double riskFreeRate = 0.01;
-        public bool riskFreeRateFilled = false;
-
-        public double yearFraction;
-
-        public DateTime lastTimeUpdated;
-
-        public double minutesSinceLastUpdate = 0;
-
-        public DateTime lastTimeFuturePriceUpdated; //is separate b/c can get time stamp off of historical bars
+        public List<OHLCData> futureBarData;
 
 
         public double ask;
@@ -110,60 +67,19 @@ namespace DataSupervisorForModel
         public double bid;
         public bool bidFilled;
 
-        public double trade;
-        public bool tradeFilled;
+        //public double trade;
+        //public bool tradeFilled;
 
         public double settlement;
         public bool settlementFilled;
-        public bool manuallyFilled;
+        //public bool manuallyFilled;
         public DateTime settlementDateTime;
         public bool settlementIsCurrentDay;
 
         public double yesterdaySettlement;
         public bool yesterdaySettlementFilled;
 
-
-        public double defaultBidPriceBeforeTheor;
-        //public bool defaultBidPriceBeforeTheorFilled;
-
-        public double defaultAskPriceBeforeTheor;
-        //public bool defaultAskPriceBeforeTheorFilled;       
-
-        public double defaultMidPriceBeforeTheor;
-
-        public double defaultPrice;
-        public bool defaultPriceFilled;
-
-
-
-        public double decisionPrice;
-        public DateTime decisionPriceTime;
-        public bool decisionPriceFilled = false;
-
-        public double transactionPrice;
-        public DateTime transactionPriceTime;
-        public bool transactionPriceFilled = false;
-
-
-        public double impliedVolFromSpan;
-
-
-        public double theoreticalOptionPrice;
-
-        public double settlementImpliedVol;
-
-        public double impliedVol;
-
-        public bool impliedVolFilled = false; //used for calculating option transaction price
-
-        public double delta;
-
-
-        public List<OHLCData> futureBarData;
-        //public List<DateTime> futureBarTimeRef;
-        public List<TheoreticalBar> theoreticalOptionDataList;
-
-
+        
         public DateTime previousDateTimeBoundaryStart;
 
         public OHLCData todayTransactionBar;
@@ -177,25 +93,31 @@ namespace DataSupervisorForModel
         public bool reachedBarAfterDecisionBar = false;
         public bool reached1MinAfterDecisionBarUsedForSnapshot = false;
 
-        public bool normalSubscriptionRequest = false;
-        public bool substituteSubscriptionRequest = false;
-
-        public bool setSubscriptionLevel = false;
-        public bool requestedMinuteBars = false;
-
-        //public CQG_REFRESH_STATE totalCalcsRefresh = CQG_REFRESH_STATE.NOTHING;
-
-        public OptionSpreadExpression underlyingFutureExpression; //this field needs to be filled after the database is queried and the expression is an option
 
 
-        public List<OptionSpreadExpression> optionExpressionsThatUseThisFutureAsUnderlying = new List<OptionSpreadExpression>();
-        //if this expression is a future contract this needs to be filled with the options that have this future as an underlying
     }
 
     public class OptionSpreadExpression : Mongo_OptionSpreadExpression
     {
+        public Instrument instrument { get; set; }
+
         public CQG.CQGInstrument cqgInstrument;
         public CQG.CQGTimedBars futureTimedBars;
+
+        public bool continueUpdating = true;
+
+        public bool normalSubscriptionRequest = false;
+        public bool substituteSubscriptionRequest = false;
+
+        public bool setSubscriptionLevel = false;
+        public bool alreadyRequestedMinuteBars = false;
+
+        public DateTime lastTimeUpdated;
+
+        public double minutesSinceLastUpdate = 0;
+
+        public DateTime lastTimeFuturePriceUpdated; //is separate b/c can get time stamp off of historical bars
+
     }
 
     //public class OptionSpreadExpression

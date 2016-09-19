@@ -77,3 +77,4 @@ D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime
 D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.pdb
 D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.RealtimeDataManagement.resources
 D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.Properties.Resources.resources
+D:\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csprojResolveAssemblyReference.cache

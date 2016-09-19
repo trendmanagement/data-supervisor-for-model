@@ -33,24 +33,24 @@ namespace DataSupervisorForModel
         
         private CQG.CQGCEL m_CEL;
 
-        List<OptionSpreadExpression> optionSpreadExpressionList = new List<OptionSpreadExpression>();
+        //internal List<OptionSpreadExpression> optionSpreadExpressionList = new List<OptionSpreadExpression>();
 
-        private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keySymbol
-            = new ConcurrentDictionary<string, OptionSpreadExpression>();
+        //private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keySymbol
+        //    = new ConcurrentDictionary<string, OptionSpreadExpression>();
 
-        private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keyCQGInId
-            = new ConcurrentDictionary<string, OptionSpreadExpression>();
+        //private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keyCQGInId
+        //    = new ConcurrentDictionary<string, OptionSpreadExpression>();
 
-        private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keyFullName
-            = new ConcurrentDictionary<string, OptionSpreadExpression>();
+        //private ConcurrentDictionary<string, OptionSpreadExpression> optionSpreadExpressionHashTable_keyFullName
+        //    = new ConcurrentDictionary<string, OptionSpreadExpression>();
 
-        internal ConcurrentDictionary<long, Instrument> instrumentHashTable
-            = new ConcurrentDictionary<long, Instrument>();
+        //internal Dictionary<long, Instrument> instrumentHashTable
+        //    = new Dictionary<long, Instrument>();
 
-        internal ConcurrentDictionary<long, List<Contract>> contractHashTableByInstId
-            = new ConcurrentDictionary<long, List<Contract>>();
+        //internal Dictionary<long, List<Contract>> contractHashTableByInstId
+        //    = new Dictionary<long, List<Contract>>();
 
-        internal List<Instrument> instrumentList = new List<Instrument>();
+        //internal List<Instrument> instrumentList = new List<Instrument>();
 
 
         internal void connectCQG()
@@ -114,18 +114,7 @@ namespace DataSupervisorForModel
 
         private void m_CEL_DataError(System.Object cqg_error, System.String error_description)
         {
-            try
-            {
-                if (realtimeDataManagement != null)
-                {
-                    realtimeDataManagement.updateCQGDataStatus(
-                        "CQG ERROR", Color.Yellow, Color.Red);
-                }
-            }
-            catch (Exception ex)
-            {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-            }
+            AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
         }
 
         public void sendSubscribeRequest(bool sendOnlyUnsubscribed)
@@ -164,91 +153,83 @@ namespace DataSupervisorForModel
 
                     int i = 0;
 
-                    //m_CEL.NewInstrument("C.US.EPN1312600");
-
-                    while (!subscriptionThreadShouldStop && i < optionSpreadExpressionList.Count)
+                    while (!subscriptionThreadShouldStop && i < DataCollectionLibrary.optionSpreadExpressionList.Count)
                     {
+                        int count = i + 1;
 
                         //TSErrorCatch.debugWriteOut("SUBSCRIBE " + optionSpreadExpressionList[i].cqgSymbol);
 
                         if (sendOnlyUnsubscribed)
                         {
 
-                            if (!optionSpreadExpressionList[i].requestedMinuteBars
-                                    && optionSpreadExpressionList[i].normalSubscriptionRequest)
+                            if (!DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel)
                             {
                                 Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
-                                requestFutureContractTimeBars(optionSpreadExpressionList[i]);
+                                string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
+                                    + " : " + count + " OF " +
+                                    DataCollectionLibrary.optionSpreadExpressionList.Count;
+
+                                AsyncTaskListener.LogMessage(message);
+
+                                AsyncTaskListener.StatusUpdate(
+                                    message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                                m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
+
+                                //optionSpreadExpressionCheckSubscribedListIdx.AddOrUpdate(
+                                //    optionSpreadExpressionList[i].contract.cqgsymbol, idx,
+                                //    (oldKey, oldValue) => idx);
+
                             }
-
-
-                            //if (!optionSpreadExpressionList[i].setSubscriptionLevel)
-                            //{
-                            //    Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
-
-                            //    realtimeDataManagement.updateStatusSubscribeData(
-                            //        "SUBSCRIBE " + optionSpreadExpressionList[i].cqgSymbol
-                            //        + " : " + i + " OF " +
-                            //        optionSpreadExpressionList.Count);
-
-                            //    m_CEL.NewInstrument(optionSpreadExpressionList[i].cqgSymbol);
-
-                            //}
-
-                            //if (optionSpreadExpressionList[i].callPutOrFuture == OPTION_SPREAD_CONTRACT_TYPE.FUTURE)
-                            //{
-                            //    if (!optionSpreadExpressionList[i].requestedMinuteBars
-                            //        && optionSpreadExpressionList[i].normalSubscriptionRequest)
-                            //    {
-                            //        requestFutureContractTimeBars(optionSpreadExpressionList[i]);
-                            //    }
-                            //}
-
+                            
+                            if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
+                                && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
+                            {
+                                requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
+                            }
+                            
                         }
                         else
                         {
-                            optionSpreadExpressionList[i].requestedMinuteBars = false;
+                            DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars = false;
 
-                            if (optionSpreadExpressionList[i].normalSubscriptionRequest)
-                            {
-                                Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
-
-                                requestFutureContractTimeBars(optionSpreadExpressionList[i]);
-                            }
-
-
-                            //optionSpreadExpressionList[i].setSubscriptionLevel = false;
-
-                            //Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
-
-                            //realtimeDataManagement.updateStatusSubscribeData(
-                            //        "SUBSCRIBE " + optionSpreadExpressionList[i].cqgSymbol
-                            //        + " : " + i + " OF " +
-                            //        optionSpreadExpressionList.Count);
-
-                            //m_CEL.NewInstrument(optionSpreadExpressionList[i].cqgSymbol);
-
-                            //if (optionSpreadExpressionList[i].callPutOrFuture == OPTION_SPREAD_CONTRACT_TYPE.FUTURE)
+                            //if (optionSpreadExpressionList[i].normalSubscriptionRequest)
                             //{
-                            //    optionSpreadExpressionList[i].requestedMinuteBars = false;                                
+                            //    Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
-                            //    if (optionSpreadExpressionList[i].normalSubscriptionRequest)
-                            //    {
-                            //        requestFutureContractTimeBars(optionSpreadExpressionList[i]);
-                            //    }
-
+                            //    requestFutureContractTimeBars(optionSpreadExpressionList[i]);
                             //}
+
+
+                            DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel = false;
+
+                            Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+
+                            string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
+                                    + " : " + count + " OF " +
+                                    DataCollectionLibrary.optionSpreadExpressionList.Count;
+
+                            AsyncTaskListener.LogMessage(message);
+
+                            AsyncTaskListener.StatusUpdate(
+                                message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                            m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
+
+                            if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest)
+                            {
+                                requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
+                            }
                         }
-
-
 
                         i++;
                     }
 
                     Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
-                    realtimeDataManagement.updateStatusSubscribeData("");
+                    AsyncTaskListener.StatusUpdate(
+                                "", STATUS_FORMAT.DEFAULT, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
                 }
             }
@@ -291,7 +272,7 @@ namespace DataSupervisorForModel
                 optionSpreadExpression.futureTimedBars = m_CEL.RequestTimedBars(timedBarsRequest);
 
 
-                optionSpreadExpressionHashTable_keyCQGInId.AddOrUpdate(
+                DataCollectionLibrary.optionSpreadExpressionHashTable_keyCQGInId.AddOrUpdate(
                     optionSpreadExpression.futureTimedBars.Id,
                     optionSpreadExpression, (oldKey, oldValue) => optionSpreadExpression);
             }
@@ -307,54 +288,48 @@ namespace DataSupervisorForModel
         {
             StringBuilder connStatusString = new StringBuilder();
             StringBuilder connStatusShortString = new StringBuilder();
-            Color connColor = Color.Red;
 
-            try
+            STATUS_FORMAT statusFormat = STATUS_FORMAT.DEFAULT; 
+
+            if (m_CEL.IsStarted)
             {
-                if (m_CEL.IsStarted)
-                {
-                    connStatusString.Append("CQG API:");
-                    connStatusString.Append(m_CEL.Environment.CELVersion);
-                    connStatusShortString.Append("CQG:");
+                connStatusString.Append("CQG API:");
+                connStatusString.Append(m_CEL.Environment.CELVersion);
+                connStatusShortString.Append("CQG:");
 
-                    if (new_status != CQG.eConnectionStatus.csConnectionUp)
+                if (new_status != CQG.eConnectionStatus.csConnectionUp)
+                {
+                    if (new_status == CQG.eConnectionStatus.csConnectionDelayed)
                     {
-                        if (new_status == CQG.eConnectionStatus.csConnectionDelayed)
-                        {
-                            connColor = Color.BlanchedAlmond;
-                            connStatusString.Append(" - CONNECTION IS DELAYED");
-                            connStatusShortString.Append("DELAYED");
-                        }
-                        else
-                        {
-                            connStatusString.Append(" - CONNECTION IS DOWN");
-                            connStatusShortString.Append("DOWN");
-                        }
+                        statusFormat = STATUS_FORMAT.CAUTION;
+                        connStatusString.Append(" - CONNECTION IS DELAYED");
+                        connStatusShortString.Append("DELAYED");
                     }
                     else
                     {
-                        connColor = Color.LawnGreen;
-                        connStatusString.Append(" - CONNECTION IS UP");
-                        connStatusShortString.Append("UP");
+                        statusFormat = STATUS_FORMAT.ALARM;
+                        connStatusString.Append(" - CONNECTION IS DOWN");
+                        connStatusShortString.Append("DOWN");
                     }
                 }
                 else
                 {
-                    connStatusString.Append("WAITING FOR API CONNECTION");
-
-                    connStatusShortString.Append("WAITING");
-                }
-
-                if (realtimeDataManagement != null)
-                {
-                    realtimeDataManagement.updateConnectionStatus(
-                        connStatusString.ToString(), connColor);
+                    //statusFormat = STATUS_FORMAT.DEFAULT;
+                    connStatusString.Append(" - CONNECTION IS UP");
+                    connStatusShortString.Append("UP");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                statusFormat = STATUS_FORMAT.CAUTION;
+
+                connStatusString.Append("WAITING FOR API CONNECTION");
+
+                connStatusShortString.Append("WAITING");
             }
+
+            AsyncTaskListener.StatusUpdate(connStatusShortString.ToString(), statusFormat, STATUS_TYPE.CQG_CONNECTION_STATUS);
+
         }
 
         private void m_CEL_TimedBarResolved(CQG.CQGTimedBars cqg_TimedBarsIn, CQGError cqg_error)
@@ -366,283 +341,13 @@ namespace DataSupervisorForModel
 
                 if (cqg_error == null)
                 {
-                    //int expressionCounter = 0;
-
-                    if (optionSpreadExpressionHashTable_keyCQGInId.ContainsKey(cqg_TimedBarsIn.Id))
-                    {
-
-                        OptionSpreadExpression optionSpreadExpression
-                            = optionSpreadExpressionHashTable_keyCQGInId[cqg_TimedBarsIn.Id];
-
-                        Instrument instrument = null;
-
-                        if (instrumentHashTable.ContainsKey(optionSpreadExpression.instrument.idinstrument))
-                        {
-                            instrument = instrumentHashTable[optionSpreadExpression.instrument.idinstrument];
-                        }
-
-                        //while (expressionCounter < optionSpreadExpressionList.Count)
-                        //{
-                        if (optionSpreadExpression.stopUpdating
-                            && optionSpreadExpression.futureTimedBars != null)
-                        {
-                            optionSpreadExpression.requestedMinuteBars = true;
-
-                            optionSpreadExpression.futureBarData
-                                = new List<OHLCData>(DataCollectionConstants.MINUTES_IN_DAY);
-
-                            //OHLCData ohlcData = new OHLCData();
-
-                            //optionSpreadExpressionList[expressionCounter].futureBarData.Add(ohlcData);
-
-                            //TSErrorCatch.debugWriteOut("resolved " + cqg_TimedBarsIn.Id
-                            //    + "  " + cqg_TimedBarsIn.Count);
-
-                            if (cqg_TimedBarsIn.Count > 0)
-                            {
-
-                                int timeBarsIn_CurrentDay_TransactionIdx = cqg_TimedBarsIn.Count - 1;
-
-                                DateTime currentDay = DateTime.Now;
-
-                                if (instrument != null)
-                                {
-
-                                    //changed decision and transaction date to the modelDateTime rather than
-                                    //the date of the latest bar. Because it was failing on instruments like cattle
-                                    //and hogs that don't have data
-                                    optionSpreadExpression.todayTransactionTimeBoundary
-                                        = currentDay.Date
-                                        .AddHours(
-                                           instrument.customdayboundarytime.Hour)
-                                        .AddMinutes(
-                                            instrument.customdayboundarytime.Minute);
-
-                                    optionSpreadExpression.todayDecisionTime
-                                        = currentDay.Date
-                                        .AddHours(
-                                            instrument.customdayboundarytime.Hour)
-                                        .AddMinutes(
-                                            instrument.customdayboundarytime.Minute
-                                            - instrument.decisionoffsetminutes);
-                                }
-
-                                //TSErrorCatch.debugWriteOut(
-                                //    optionSpreadExpressionList[expressionCounter].cqgSymbol + " " +
-                                //    optionSpreadExpressionList[expressionCounter].todayDecisionTime)
-
-                                //optionSpreadExpressionList[expressionCounter].settlementDateTimeMarker
-                                //    = optionSpreadManager.initializationParmsSaved.modelDateTime.Date
-                                //    .AddHours(
-                                //        optionSpreadExpressionList[expressionCounter].instrument.settlementTime.Hour)
-                                //    .AddMinutes(
-                                //        optionSpreadExpressionList[expressionCounter].instrument.settlementTime.Minute
-                                //        + 15);
-
-                                //TSErrorCatch.debugWriteOut(
-                                //    optionSpreadExpressionList[expressionCounter].instrument.CQGsymbol + "  " +
-                                //    optionSpreadExpressionList[expressionCounter].settlementDateTimeMarker);
-
-
-                                int timeBarsIn_Counter = 0;
-                                int cumVolume = 0;
-
-
-                                while (timeBarsIn_Counter < cqg_TimedBarsIn.Count)
-                                {
-
-
-
-
-                                    if (cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                        .CompareTo(optionSpreadExpression.previousDateTimeBoundaryStart) >= 0)
-                                    //&& cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                    //.CompareTo(optionSpreadExpressionList[expressionCounter].todayTransactionTimeBoundary) <= 0)
-                                    {
-                                        bool error = false;
-
-                                        OHLCData ohlcData = new OHLCData();
-
-                                        optionSpreadExpression.futureBarData.Add(ohlcData);
-
-                                        ohlcData.barTime = cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp;
-
-                                        int volume = 0;
-
-                                        if (cqg_TimedBarsIn[timeBarsIn_Counter].ActualVolume
-                                            != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                        {
-                                            volume = cqg_TimedBarsIn[timeBarsIn_Counter].ActualVolume;
-                                        }
-                                        else
-                                        {
-                                            error = true;
-                                        }
-
-                                        //if (timeBarsIn_Counter == 0)
-                                        //{
-                                        //    TSErrorCatch.debugWriteOut(
-                                        //        optionSpreadExpressionList[expressionCounter].cqgSymbol +
-                                        //        " VOL BAR " + cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp);
-                                        //}
-                                        //else if (timeBarsIn_Counter == cqg_TimedBarsIn.Count - 1)
-                                        //{
-                                        //    TSErrorCatch.debugWriteOut(
-                                        //        optionSpreadExpressionList[expressionCounter].cqgSymbol +
-                                        //        " VOL BAR " + cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp);
-                                        //}
-
-                                        cumVolume += volume;
-
-                                        ohlcData.cumulativeVolume = cumVolume;
-
-                                        ohlcData.volume = volume;
-
-
-
-                                        if (cqg_TimedBarsIn[timeBarsIn_Counter].Open
-                                            != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                        {
-                                            ohlcData.open = cqg_TimedBarsIn[timeBarsIn_Counter].Open;
-                                        }
-                                        else
-                                        {
-                                            error = true;
-                                        }
-
-                                        if (cqg_TimedBarsIn[timeBarsIn_Counter].High
-                                            != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                        {
-                                            ohlcData.high = cqg_TimedBarsIn[timeBarsIn_Counter].High;
-                                        }
-                                        else
-                                        {
-                                            error = true;
-                                        }
-
-                                        if (cqg_TimedBarsIn[timeBarsIn_Counter].Low
-                                            != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                        {
-                                            ohlcData.low = cqg_TimedBarsIn[timeBarsIn_Counter].Low;
-                                        }
-                                        else
-                                        {
-                                            error = true;
-                                        }
-
-
-                                        if (cqg_TimedBarsIn[timeBarsIn_Counter].Close
-                                        != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                        {
-                                            ohlcData.close = cqg_TimedBarsIn[timeBarsIn_Counter].Close;
-                                        }
-                                        else
-                                        {
-                                            error = true;
-                                        }
-
-                                        ohlcData.errorBar = error;
-
-
-
-                                        if (!error
-                                            && !optionSpreadExpression.reachedTransactionTimeBoundary
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) <= 0)
-                                        {
-                                            optionSpreadExpression.todayTransactionBar = ohlcData;
-                                        }
-
-                                        if (!error
-                                            && !optionSpreadExpression.reachedTransactionTimeBoundary
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) >= 0)
-                                        {
-                                            optionSpreadExpression.reachedTransactionTimeBoundary = true;
-                                        }
-
-                                        if (!error
-                                            && !optionSpreadExpression.reachedDecisionBar
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayDecisionTime) <= 0)
-                                        {
-                                            optionSpreadExpression.decisionBar = ohlcData;
-                                        }
-
-                                        if (!error
-                                            && !optionSpreadExpression.reachedDecisionBar
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayDecisionTime) >= 0)
-                                        {
-                                            optionSpreadExpression.reachedDecisionBar = true;
-
-
-                                        }
-
-                                        if (!error
-                                            && !optionSpreadExpression.reachedBarAfterDecisionBar
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayDecisionTime) > 0)
-                                        {
-                                            optionSpreadExpression.reachedBarAfterDecisionBar = true;
-                                        }
-
-                                        if (!error
-                                            && !optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot
-                                            && cqg_TimedBarsIn[timeBarsIn_Counter].Timestamp
-                                            .CompareTo(optionSpreadExpression.todayDecisionTime.AddMinutes(1)) > 0)
-                                        {
-                                            optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot = true;
-                                        }
-
-
-                                    }
-
-                                    timeBarsIn_Counter++;
-                                }
-
-                                int backTimeCounter = cqg_TimedBarsIn.Count - 1;
-
-                                while (backTimeCounter >= 0)
-                                {
-                                    if (cqg_TimedBarsIn[backTimeCounter].Close
-                                    != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                    {
-                                        optionSpreadExpression.lastTimeFuturePriceUpdated =
-                                            cqg_TimedBarsIn[backTimeCounter].Timestamp;
-
-                                        optionSpreadExpression.trade =
-                                            cqg_TimedBarsIn[backTimeCounter].Close;
-
-                                        optionSpreadExpression.tradeFilled = true;
-
-                                        break;
-                                    }
-
-                                    backTimeCounter--;
-                                }
-
-
-
-                                fillDefaultMidPrice(optionSpreadExpression);
-
-                                manageExpressionPriceCalcs(optionSpreadExpression);
-
-                            }
-
-                            //break;  //while (expressionCounter < optionSpreadExpressionList.Count)
-
-                        }
-
-                        //expressionCounter++;
-
-                    }
-
-
+                    AddTimedBar(cqg_TimedBarsIn);
                 }
                 else
                 {
-                    realtimeDataManagement.updateCQGDataStatus("CQG ERROR", Color.Yellow, Color.Red);
+                    AsyncTaskListener.LogMessage(cqg_error.Description);
+
+                    AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
                 }
             }
             catch (Exception ex)
@@ -653,6 +358,11 @@ namespace DataSupervisorForModel
 
         private void m_CEL_TimedBarsAdded(CQG.CQGTimedBars cqg_TimedBarsIn)
         {
+            AddTimedBar(cqg_TimedBarsIn);
+        }
+
+        private void AddTimedBar(CQG.CQGTimedBars cqg_TimedBarsIn)
+        {
             try
             {
                 //TSErrorCatch.debugWriteOut(cqg_TimedBarsIn.Id);
@@ -662,24 +372,43 @@ namespace DataSupervisorForModel
                     //if (optionSpreadExpressionFutureTimedBarsListIdx.Count > 0
                     //    &&
                     //    optionSpreadExpressionFutureTimedBarsListIdx.ContainsKey(cqg_TimedBarsIn.Id))
-                    
-                    if (optionSpreadExpressionHashTable_keyCQGInId.ContainsKey(cqg_TimedBarsIn.Id))
+
+                    if (DataCollectionLibrary.optionSpreadExpressionHashTable_keyCQGInId.ContainsKey(cqg_TimedBarsIn.Id))
                     {
 
-                        OptionSpreadExpression optionSpreadExpression = optionSpreadExpressionHashTable_keyCQGInId[cqg_TimedBarsIn.Id];
+                        OptionSpreadExpression optionSpreadExpression = DataCollectionLibrary.optionSpreadExpressionHashTable_keyCQGInId[cqg_TimedBarsIn.Id];
 
                         //while (expressionCounter < optionSpreadExpressionList.Count)
                         //{
-                        if (!optionSpreadExpression.stopUpdating
+                        if (optionSpreadExpression.continueUpdating
                             && optionSpreadExpression.futureTimedBars != null)
-
-                        //while (expressionCounter < optionSpreadExpressionList.Count)
-                        //{
-                        //    if (!optionSpreadExpressionList[expressionCounter].stopUpdating
-                        //        && optionSpreadExpressionList[expressionCounter].futureTimedBars != null
-                        //        && cqg_TimedBarsIn.Id.CompareTo(optionSpreadExpressionList[expressionCounter].futureTimedBars.Id) == 0)
-                        //&& !optionSpreadExpressionList[expressionCounter].requestedMinuteBars)
                         {
+
+
+                            //
+                            if (!optionSpreadExpression.alreadyRequestedMinuteBars)
+                            {
+                                optionSpreadExpression.alreadyRequestedMinuteBars = true;
+
+                                DateTime currentDay = DateTime.Now;
+
+                                optionSpreadExpression.todayTransactionTimeBoundary
+                                        = currentDay.Date
+                                        .AddHours(
+                                            optionSpreadExpression.instrument.customdayboundarytime.Hour)
+                                        .AddMinutes(
+                                            optionSpreadExpression.instrument.customdayboundarytime.Minute);
+
+                                optionSpreadExpression.todayDecisionTime
+                                    = currentDay.Date
+                                    .AddHours(
+                                        optionSpreadExpression.instrument.customdayboundarytime.Hour)
+                                    .AddMinutes(
+                                        optionSpreadExpression.instrument.customdayboundarytime.Minute
+                                        - optionSpreadExpression.instrument.decisionoffsetminutes);
+                            }
+
+
                             int lastTimdBarsInIdx = cqg_TimedBarsIn.Count - 1;
 
                             while (lastTimdBarsInIdx >= 0)
@@ -723,62 +452,7 @@ namespace DataSupervisorForModel
                                     error = true;
                                 }
 
-
-
                                 ohlcData.volume = volume;
-
-
-                                int cumVolume = 0;
-
-                                int cumCounter = 0;
-
-                                foreach (OHLCData ohlcDataCumvol in optionSpreadExpression.futureBarData)
-                                {
-                                    if (ohlcDataCumvol.barTime.CompareTo(
-                                        optionSpreadExpression.previousDateTimeBoundaryStart) >= 0)
-                                    {
-                                        //if (cumCounter == 0)
-                                        //{
-                                        //    TSErrorCatch.debugWriteOut(
-                                        //        optionSpreadExpressionList[expressionCounter].cqgSymbol +
-                                        //        " VOL BAR " + ohlcDataCumvol.barTime);
-                                        //}
-                                        //else if (cumCounter == 
-                                        //    optionSpreadExpressionList[expressionCounter].futureBarData.Count - 1)
-                                        //{
-                                        //    TSErrorCatch.debugWriteOut(
-                                        //        optionSpreadExpressionList[expressionCounter].cqgSymbol +
-                                        //        " VOL BAR " + ohlcDataCumvol.barTime);
-                                        //}
-
-                                        cumCounter++;
-
-                                        cumVolume += ohlcDataCumvol.volume;
-
-                                        ohlcDataCumvol.cumulativeVolume = cumVolume;
-                                    }
-                                }
-
-
-                                //int timeBarsIn_Counter = 0;
-
-                                //while (timeBarsIn_Counter < cqg_TimedBarsIn.Count)
-                                //{
-
-
-                                //    if (cqg_TimedBarsIn[timeBarsIn_Counter].ActualVolume
-                                //                != -TradingSystemConstants.CQG_DATA_ERROR_CODE)
-                                //    {
-                                //        //volume = cqg_TimedBarsIn[timeBarsIn_Counter].ActualVolume;
-
-                                //        cumVolume += cqg_TimedBarsIn[timeBarsIn_Counter].ActualVolume;
-                                //    }
-
-                                //    timeBarsIn_Counter++;
-
-                                //}
-
-                                ohlcData.cumulativeVolume = cumVolume;
 
 
                                 if (cqg_TimedBarsIn[lastTimdBarsInIdx].Open
@@ -892,27 +566,14 @@ namespace DataSupervisorForModel
                                 }
 
 
-
-                                if (cqg_TimedBarsIn[lastTimdBarsInIdx].Close
-                                        != -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                                {
-                                    optionSpreadExpression.lastTimeFuturePriceUpdated =
-                                                cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp;
-
-                                    optionSpreadExpression.trade =
-                                            cqg_TimedBarsIn[lastTimdBarsInIdx].Close;
-
-                                    optionSpreadExpression.tradeFilled = true;
-
-                                    fillDefaultMidPrice(optionSpreadExpression);
-
-                                    manageExpressionPriceCalcs(optionSpreadExpression);
-                                }
+                                //fillFutureDecisionAndTransactionPrice(optionSpreadExpression);
 
                                 lastTimdBarsInIdx++;
 
                             }
 
+                            optionSpreadExpression.lastTimeFuturePriceUpdated =
+                                            cqg_TimedBarsIn.EndTimestamp;
 
 
                         }
@@ -936,14 +597,14 @@ namespace DataSupervisorForModel
             try
             {
 
-                if (optionSpreadExpressionHashTable_keyCQGInId.ContainsKey(cqg_TimedBarsIn.Id))
+                if (DataCollectionLibrary.optionSpreadExpressionHashTable_keyCQGInId.ContainsKey(cqg_TimedBarsIn.Id))
                 {
 
                     OptionSpreadExpression optionSpreadExpression
-                            = optionSpreadExpressionHashTable_keyCQGInId[cqg_TimedBarsIn.Id];
+                            = DataCollectionLibrary.optionSpreadExpressionHashTable_keyCQGInId[cqg_TimedBarsIn.Id];
 
 
-                    if (!optionSpreadExpression.stopUpdating
+                    if (optionSpreadExpression.continueUpdating
                         && optionSpreadExpression.futureTimedBars != null
                         && optionSpreadExpression.futureBarData != null
                         && optionSpreadExpression.futureBarData.Count > 0)
@@ -1088,20 +749,18 @@ namespace DataSupervisorForModel
                             }
 
 
-                            if (!optionSpreadExpression.futureBarData.Last().errorBar)
-                            //!= -DataCollectionConstants.CQG_DATA_ERROR_CODE)
-                            {
-                                optionSpreadExpression.lastTimeFuturePriceUpdated =
-                                    optionSpreadExpression.futureBarData.Last().barTime;
+                            //if (!optionSpreadExpression.futureBarData.Last().errorBar)
+                            //{
+                            //    optionSpreadExpression.lastTimeFuturePriceUpdated =
+                            //        optionSpreadExpression.futureBarData.Last().barTime;
 
-                                optionSpreadExpression.trade =
-                                    optionSpreadExpression.futureBarData.Last().close;
+                            //    optionSpreadExpression.trade =
+                            //        optionSpreadExpression.futureBarData.Last().close;
 
-                                fillDefaultMidPrice(optionSpreadExpression);
+                            //    fillDefaultMidPrice(optionSpreadExpression);
 
-                                manageExpressionPriceCalcs(optionSpreadExpression);
-
-                            }
+                            //    fillFutureDecisionAndTransactionPrice(optionSpreadExpression);
+                            //}
 
                         }
 
@@ -1123,18 +782,18 @@ namespace DataSupervisorForModel
         {
             try
             {
-                realtimeDataManagement.updateCQGDataStatus("CQG GOOD", Color.Black, Color.LawnGreen);
+                AsyncTaskListener.StatusUpdate("CQG GOOD", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
 
 
-                if (optionSpreadExpressionHashTable_keySymbol.ContainsKey(symbol))
+                if (DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol.ContainsKey(symbol))
                 {
 
-                    OptionSpreadExpression optionSpreadExpression = 
-                        optionSpreadExpressionHashTable_keySymbol[symbol];
+                    OptionSpreadExpression optionSpreadExpression =
+                        DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol[symbol];
 
                     //while (expressionCounter < optionSpreadExpressionList.Count)
                     //{
-                    if (!optionSpreadExpression.stopUpdating
+                    if (optionSpreadExpression.continueUpdating
                         //&& symbol.CompareTo(optionSpreadExpressionList[expressionCounter].cqgSymbol) == 0
                         && !optionSpreadExpression.setSubscriptionLevel)
                     {
@@ -1149,7 +808,7 @@ namespace DataSupervisorForModel
                         //        cqgInstrument.FullName, idx,
                         //        (oldKey, oldValue) => idx);
 
-                        optionSpreadExpressionHashTable_keyFullName.AddOrUpdate(
+                        DataCollectionLibrary.optionSpreadExpressionHashTable_keyFullName.AddOrUpdate(
                                 cqgInstrument.FullName, optionSpreadExpression,
                                 (oldKey, oldValue) => optionSpreadExpression);
 
@@ -1161,34 +820,13 @@ namespace DataSupervisorForModel
                         fillPricesFromQuote(optionSpreadExpression,
                             optionSpreadExpression.cqgInstrument.Quotes);
 
-                        //if is an option (not a future)
-                        //if (optionSpreadExpression.callPutOrFuture !=
-                        //        OPTION_SPREAD_CONTRACT_TYPE.FUTURE)
-                        //{
-                        //    fillDefaultMidPrice(optionSpreadExpression);
 
-                        //    manageExpressionPriceCalcs(optionSpreadExpression);
-                        //}
+                        
+                        ///<summary>below sets the subscription level of the CQG data</summary>
+                        optionSpreadExpression.cqgInstrument.DataSubscriptionLevel
+                            = eDataSubscriptionLevel.dsQuotes;
+                        
 
-
-                        if (optionSpreadExpression.optionExpressionType
-                            == OPTION_EXPRESSION_TYPES.SPREAD_LEG_PRICE)
-                        {
-                            //subscribes to futures data
-                            optionSpreadExpression.cqgInstrument.DataSubscriptionLevel
-                                = eDataSubscriptionLevel.dsQuotes;
-                        }
-                        else
-                        {
-                            //TSErrorCatch.debugWriteOut(symbol + " interest rate no update");
-
-                            //set updates for interest rate to stop
-                            optionSpreadExpression.cqgInstrument.DataSubscriptionLevel
-                                = eDataSubscriptionLevel.dsNone;
-
-                        }
-
-                        //break;
                     }
 
                     //expressionCounter++;
@@ -1208,16 +846,16 @@ namespace DataSupervisorForModel
             try
             {
 
-                if (optionSpreadExpressionHashTable_keyFullName.ContainsKey(cqgInstrument.FullName))
+                if (DataCollectionLibrary.optionSpreadExpressionHashTable_keyFullName.ContainsKey(cqgInstrument.FullName))
                 {
 
                     //optionSpreadExpressionCheckSubscribedListIdx
 
                     OptionSpreadExpression optionSpreadExpression 
-                        = optionSpreadExpressionHashTable_keyFullName[cqgInstrument.FullName];
+                        = DataCollectionLibrary.optionSpreadExpressionHashTable_keyFullName[cqgInstrument.FullName];
 
                     if (optionSpreadExpression != null
-                        && !optionSpreadExpression.stopUpdating
+                        && optionSpreadExpression.continueUpdating
                         && optionSpreadExpression.cqgInstrument != null
 
                         && cqgInstrument.CEL != null)
@@ -1279,160 +917,89 @@ namespace DataSupervisorForModel
             }
         }
 
-        private void fillDefaultMidPrice(OptionSpreadExpression optionSpreadExpression)  //, Instrument instrument)
-        {
+        //private void fillDefaultMidPrice(OptionSpreadExpression optionSpreadExpression)  //, Instrument instrument)
+        //{
 
-            double defaultPrice = 0;
+        //    double defaultPrice = 0;
 
-            if (optionSpreadExpression.optionExpressionType == OPTION_EXPRESSION_TYPES.OPTION_EXPRESSION_RISK_FREE_RATE)
-            {
-                if (optionSpreadExpression.tradeFilled)
-                {
-                    defaultPrice = optionSpreadExpression.trade;
-                }
-                else if (optionSpreadExpression.settlementFilled)
-                {
-                    defaultPrice = optionSpreadExpression.settlement;
-                }
-                else if (optionSpreadExpression.yesterdaySettlementFilled)
-                {
-                    defaultPrice = optionSpreadExpression.yesterdaySettlement;
-                }
+        //    optionSpreadExpression.lastTimeUpdated = optionSpreadExpression.lastTimeFuturePriceUpdated;
 
-                if (defaultPrice == 0)
-                {
-                    defaultPrice = 0.01;
-                }
+        //    TimeSpan span = DateTime.Now - optionSpreadExpression.lastTimeUpdated;
 
-                defaultPrice = defaultPrice == 0 ? 0 :
-                    ((int)((100 - defaultPrice + DataCollectionConstants.EPSILON) * 1000) / 100000.0);
+        //    optionSpreadExpression.minutesSinceLastUpdate = span.TotalMinutes;
 
-                optionSpreadExpression.riskFreeRate = defaultPrice;
-            }
-            else
-            {
+        //    if (optionSpreadExpression.)
+        //    {
+        //        defaultPrice = optionSpreadExpression.trade;
+        //    }
+        //    else if (optionSpreadExpression.settlementFilled)
+        //    {
+        //        defaultPrice = optionSpreadExpression.settlement;
+        //    }
+        //    else if (optionSpreadExpression.yesterdaySettlementFilled)
+        //    {
+        //        defaultPrice = optionSpreadExpression.yesterdaySettlement;
+        //    }
 
-                optionSpreadExpression.lastTimeUpdated = optionSpreadExpression.lastTimeFuturePriceUpdated;
-
-                TimeSpan span = DateTime.Now - optionSpreadExpression.lastTimeUpdated;
-
-                optionSpreadExpression.minutesSinceLastUpdate = span.TotalMinutes;
-
-                if (optionSpreadExpression.tradeFilled)
-                {
-                    defaultPrice = optionSpreadExpression.trade;
-                }
-                else if (optionSpreadExpression.settlementFilled)
-                {
-                    defaultPrice = optionSpreadExpression.settlement;
-                }
-                else if (optionSpreadExpression.yesterdaySettlementFilled)
-                {
-                    defaultPrice = optionSpreadExpression.yesterdaySettlement;
-                }
-
-                if (defaultPrice == 0)
-                {
-                    defaultPrice = DataCollectionConstants.OPTION_ZERO_PRICE;
-                }
+        //    if (defaultPrice == 0)
+        //    {
+        //        defaultPrice = DataCollectionConstants.ZERO_PRICE;
+        //    }
 
 
-                //can set default price for futures here b/c no further price possibilities for future;
-                optionSpreadExpression.defaultPrice = defaultPrice;
+        //    //can set default price for futures here b/c no further price possibilities for future;
+        //    optionSpreadExpression.defaultPrice = defaultPrice;
 
-                optionSpreadExpression.defaultPriceFilled = true;
+        //    optionSpreadExpression.defaultPriceFilled = true;
 
-            }
-        }
+        //}
 
-        public void manageExpressionPriceCalcs(OptionSpreadExpression optionSpreadExpression)
-        {
+        //public void manageExpressionPriceCalcs(OptionSpreadExpression optionSpreadExpression)
+        //{
+        //    fillFutureDecisionAndTransactionPrice(optionSpreadExpression);            
+        //}
 
-            if (optionSpreadExpression.optionExpressionType == OPTION_EXPRESSION_TYPES.OPTION_EXPRESSION_RISK_FREE_RATE)
-            {
-                // fill all expressions with the latest interest rate
+        //public void fillFutureDecisionAndTransactionPrice(OptionSpreadExpression optionSpreadExpression)
+        //{
+        //    if (optionSpreadExpression.decisionBar != null && optionSpreadExpression.todayTransactionBar != null)
+        //    {
 
-                foreach (KeyValuePair<string, OptionSpreadExpression> entry in optionSpreadExpressionHashTable_keyCQGInId)
-                {
-                    entry.Value.riskFreeRateFilled = true;
+        //        optionSpreadExpression.decisionPrice =
+        //            optionSpreadExpression.decisionBar.close;
 
-                    entry.Value.riskFreeRate = optionSpreadExpression.riskFreeRate;
+        //        optionSpreadExpression.decisionPriceTime =
+        //            optionSpreadExpression.decisionBar.barTime;
 
-                    //only update if subscribed
-                    //if (entry.Value.setSubscriptionLevel)
-                    //{
-                    //    entry.Value.totalCalcsRefresh = CQG_REFRESH_STATE.DATA_UPDATED;
-                    //}
-                }
-            }
-            else
-            {
-                //if (optionSpreadExpression.callPutOrFuture == OPTION_SPREAD_CONTRACT_TYPE.FUTURE)
-                {
-
-                    optionSpreadExpression.impliedVol = 0;
-                    optionSpreadExpression.delta = 1 * DataCollectionConstants.OPTION_DELTA_MULTIPLIER;
-
-                    fillFutureDecisionAndTransactionPrice(optionSpreadExpression);
-
-                    
-
-
-                }
+        //        optionSpreadExpression.decisionPriceFilled = true;
 
 
 
-                //optionSpreadExpression.totalCalcsRefresh = CQG_REFRESH_STATE.DATA_UPDATED;
-            }
-        }
+        //        optionSpreadExpression.transactionPrice =
+        //            optionSpreadExpression.todayTransactionBar.close;
 
-        public void fillFutureDecisionAndTransactionPrice(OptionSpreadExpression optionSpreadExpression)
-        {
-            if (optionSpreadExpression.decisionBar != null && optionSpreadExpression.todayTransactionBar != null)
-            {
+        //        optionSpreadExpression.transactionPriceTime =
+        //            optionSpreadExpression.todayTransactionBar.barTime;
 
-                optionSpreadExpression.decisionPrice =
-                    optionSpreadExpression.decisionBar.close;
 
-                optionSpreadExpression.decisionPriceTime =
-                    optionSpreadExpression.decisionBar.barTime;
+        //        if (optionSpreadExpression.reachedTransactionTimeBoundary)
+        //        {
+        //            //optionSpreadExpression.filledAfterTransactionTimeBoundary = true;
 
-                optionSpreadExpression.decisionPriceFilled = true;
+        //            optionSpreadExpression.transactionPriceFilled = true;
 
-                //if (optionSpreadExpression.reachedDecisionBar)
-                //{
-                //    optionSpreadExpression.filledAfterReachedDecisionBar = true;
-                //}
+        //            //foreach (OptionSpreadExpression ose in optionSpreadExpression.optionExpressionsThatUseThisFutureAsUnderlying)
+        //            //{
+        //            //    ose.transactionPriceFilled = true;
+        //            //}
+
+        //        }
 
 
 
 
-                optionSpreadExpression.transactionPrice =
-                    optionSpreadExpression.todayTransactionBar.close;
+        //    }
 
-                optionSpreadExpression.transactionPriceTime =
-                    optionSpreadExpression.todayTransactionBar.barTime;
-
-
-                if (optionSpreadExpression.reachedTransactionTimeBoundary)
-                {
-                    //optionSpreadExpression.filledAfterTransactionTimeBoundary = true;
-
-                    optionSpreadExpression.transactionPriceFilled = true;
-
-                    foreach (OptionSpreadExpression ose in optionSpreadExpression.optionExpressionsThatUseThisFutureAsUnderlying)
-                    {
-                        ose.transactionPriceFilled = true;
-                    }
-
-                }
-
-
-
-
-            }
-
-        }
+        //}
 
         private void fillPricesFromQuote(OptionSpreadExpression optionSpreadExpression, CQGQuotes quotes)
         {

@@ -91,6 +91,7 @@
     </Compile>
     <Compile Include="DataCollectionConstants.cs" />
     <Compile Include="CQGDataManagement.cs" />
+    <Compile Include="DataCollectionLibrary.cs" />
     <Compile Include="DataManagementUtility.cs" />
     <Compile Include="DBsystem\MongoDBConnectionAndSetup.cs" />
     <Compile Include="OptionCalcs.cs" />
