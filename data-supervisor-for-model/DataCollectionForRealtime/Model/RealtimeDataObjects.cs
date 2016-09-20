@@ -14,12 +14,25 @@ namespace DataSupervisorForModel
 
     public class OHLCData
     {
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime barTime { get; set; }
+
+        [BsonRepresentation(BsonType.Double)]
         public double open { get; set; }
+
+        [BsonRepresentation(BsonType.Double)]
         public double high { get; set; }
+
+        [BsonRepresentation(BsonType.Double)]
         public double low { get; set; }
+
+        [BsonRepresentation(BsonType.Double)]
         public double close { get; set; }
+
+        [BsonRepresentation(BsonType.Int32)]
         public int volume { get; set; }
+
         //public int cumulativeVolume { get; set; }
 
         public bool errorBar { get; set; }
@@ -52,46 +65,18 @@ namespace DataSupervisorForModel
 
         public Contract contract { get; set; }
 
-        
+        /// <summary>
+        /// used to mark the start of the future bar data for collection
+        /// </summary>
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        public DateTime previousDateTimeBoundaryStart { get; set; }
+
+        //[BsonRepresentation(BsonType.Array)]
+        public List<OHLCData> futureBarData { get; set; }
 
 
-        //[BsonElement("cqgSymbol")]
-        //public string cqgSymbol { get; set; }
 
-        public List<OHLCData> futureBarData;
-
-
-        public double ask;
-        public bool askFilled;
-
-        public double bid;
-        public bool bidFilled;
-
-        //public double trade;
-        //public bool tradeFilled;
-
-        public double settlement;
-        public bool settlementFilled;
-        //public bool manuallyFilled;
-        public DateTime settlementDateTime;
-        public bool settlementIsCurrentDay;
-
-        public double yesterdaySettlement;
-        public bool yesterdaySettlementFilled;
-
-        
-        public DateTime previousDateTimeBoundaryStart;
-
-        public OHLCData todayTransactionBar;
-        public DateTime todayTransactionTimeBoundary;
-        public bool reachedTransactionTimeBoundary = false;
-        public bool filledAfterTransactionTimeBoundary = false;
-
-        public OHLCData decisionBar;
-        public DateTime todayDecisionTime;
-        public bool reachedDecisionBar = false;
-        public bool reachedBarAfterDecisionBar = false;
-        public bool reached1MinAfterDecisionBarUsedForSnapshot = false;
 
 
 
@@ -104,6 +89,15 @@ namespace DataSupervisorForModel
         public CQG.CQGInstrument cqgInstrument;
         public CQG.CQGTimedBars futureTimedBars;
 
+        public double ask;
+        public bool askFilled;
+
+        public double bid;
+        public bool bidFilled;
+
+        public double yesterdaySettlement;
+        public bool yesterdaySettlementFilled;
+
         public bool continueUpdating = true;
 
         public bool normalSubscriptionRequest = false;
@@ -112,11 +106,30 @@ namespace DataSupervisorForModel
         public bool setSubscriptionLevel = false;
         public bool alreadyRequestedMinuteBars = false;
 
-        public DateTime lastTimeUpdated;
+        //public DateTime lastTimeUpdated;
 
-        public double minutesSinceLastUpdate = 0;
+        //public double minutesSinceLastUpdate = 0;
 
         public DateTime lastTimeFuturePriceUpdated; //is separate b/c can get time stamp off of historical bars
+
+        public OHLCData transactionBar;
+        public DateTime transactionTime;
+        public bool reachedTransactionBar = false;
+        public bool reachedBarAfterTransactionBar = false;
+
+
+        public OHLCData decisionBar;
+        public DateTime decisionTime;
+        public bool reachedDecisionBar = false;
+        public bool reachedBarAfterDecisionBar = false;
+
+
+        public double settlement;
+        public bool settlementFilled;
+        public DateTime settlementDateTime;
+        public bool settlementIsCurrentDay;
+
+        //public bool reached1MinAfterDecisionBarUsedForSnapshot = false;
 
     }
 

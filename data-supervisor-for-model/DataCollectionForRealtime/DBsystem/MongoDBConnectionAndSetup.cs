@@ -36,7 +36,7 @@ namespace DataSupervisorForModel
             await _database.DropCollectionAsync(mongoDataCollection);
         }
 
-        internal async Task createDoc()
+        internal async Task updateBardataToMongo()
         {
             //Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
 
@@ -64,8 +64,12 @@ namespace DataSupervisorForModel
 
                 var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Eq("_id", mongoOse.contract.idcontract);
 
-                await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
+                await collection.UpdateOneAsync(filter, Builders<Mongo_OptionSpreadExpression>.Update                    
+                    .Set("futureBarData", ose.futureBarData),
                     new UpdateOptions { IsUpsert = true });
+
+                //await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
+                //    new UpdateOptions { IsUpsert = true });
 
                 //result = collection.Find(filter).SingleOrDefault();
 
@@ -96,7 +100,7 @@ namespace DataSupervisorForModel
                 //    }
                 //}
 
-                return;
+                //return;
             }
         }
 
@@ -128,19 +132,15 @@ namespace DataSupervisorForModel
 
 
             if (mongoOse == null ||
-                //mongoOse.previousDateTimeBoundaryStart.CompareTo(previousDateCollectionStart) == 0)
-                mongoOse.futureBarData[0].barTime.CompareTo(previousDateCollectionStart) <= 0)
+                mongoOse.previousDateTimeBoundaryStart.CompareTo(previousDateCollectionStart) != 0)
+                //mongoOse.futureBarData[0].barTime.CompareTo(previousDateCollectionStart) <= 0)
             {
                 //replace object in mongodb
                 ose = new OptionSpreadExpression();
 
-                ose.normalSubscriptionRequest = true;
-
                 ose._id = contract.idcontract;
 
                 ose.contract = contract;
-
-                ose.instrument = instrument;
 
                 ose.previousDateTimeBoundaryStart = previousDateCollectionStart;
 
@@ -150,14 +150,20 @@ namespace DataSupervisorForModel
 
                 //put replace code here
 
-                collection.FindOneAndReplace(filter, mongoOseToReplace);
+                collection.ReplaceOne(filter, mongoOseToReplace,
+                    new UpdateOptions { IsUpsert = true });
             }
             else
             {
-                Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
+                Mapper.Initialize(cfg => cfg.CreateMap<Mongo_OptionSpreadExpression, OptionSpreadExpression>());
 
-                ose = Mapper.Map<OptionSpreadExpression>(mongoOse);
+                ose = Mapper.Map<OptionSpreadExpression>(mongoOse);               
             }
+
+            //fill the following 2 variables for normal functioning
+            ose.normalSubscriptionRequest = true;
+
+            ose.instrument = instrument;
 
             return ose;
 

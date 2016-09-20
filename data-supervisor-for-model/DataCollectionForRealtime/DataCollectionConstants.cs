@@ -10,19 +10,19 @@ namespace DataSupervisorForModel
     {
         public const long CQG_DATA_ERROR_CODE = 2147483648;
 
-        public const int MINUTES_IN_DAY = 1440;
+        //public const int MINUTES_IN_DAY = 1440;
 
-        public const double EPSILON = 0.000000001;
+        //public const double EPSILON = 0.000000001;
 
-        public const double ZERO_PRICE = 0.000001;
+        //public const double ZERO_PRICE = 0.000001;
 
-        public const double OPTION_DELTA_MULTIPLIER = 100;
+        //public const double OPTION_DELTA_MULTIPLIER = 100;
 
-        public const double OPTION_ACCEPTABLE_BID_ASK_SPREAD = 20;
+        //public const double OPTION_ACCEPTABLE_BID_ASK_SPREAD = 20;
 
-        public const int STRIKE_COUNT_FOR_DEFAULT_TO_THEORETICAL = 4;
+        //public const int STRIKE_COUNT_FOR_DEFAULT_TO_THEORETICAL = 4;
 
-        public const double OPTION_DEFAULT_THEORETICAL_PRICE_RANGE = 0.17;
+        //public const double OPTION_DEFAULT_THEORETICAL_PRICE_RANGE = 0.17;
 
 
     }

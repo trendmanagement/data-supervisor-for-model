@@ -337,8 +337,6 @@ namespace DataSupervisorForModel
             //Debug.WriteLine("m_CEL_ExpressionResolved" + cqg_expression.Count);
             try
             {
-                //TSErrorCatch.debugWriteOut(cqg_TimedBarsIn.Id);
-
                 if (cqg_error == null)
                 {
                     AddTimedBar(cqg_TimedBarsIn);
@@ -347,7 +345,7 @@ namespace DataSupervisorForModel
                 {
                     AsyncTaskListener.LogMessage(cqg_error.Description);
 
-                    AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
+                    //AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
                 }
             }
             catch (Exception ex)
@@ -392,14 +390,14 @@ namespace DataSupervisorForModel
 
                                 DateTime currentDay = DateTime.Now;
 
-                                optionSpreadExpression.todayTransactionTimeBoundary
+                                optionSpreadExpression.transactionTime
                                         = currentDay.Date
                                         .AddHours(
                                             optionSpreadExpression.instrument.customdayboundarytime.Hour)
                                         .AddMinutes(
                                             optionSpreadExpression.instrument.customdayboundarytime.Minute);
 
-                                optionSpreadExpression.todayDecisionTime
+                                optionSpreadExpression.decisionTime
                                     = currentDay.Date
                                     .AddHours(
                                         optionSpreadExpression.instrument.customdayboundarytime.Hour)
@@ -409,23 +407,29 @@ namespace DataSupervisorForModel
                             }
 
 
-                            int lastTimdBarsInIdx = cqg_TimedBarsIn.Count - 1;
+                            int lastTimdBarsInIdx = 0;
 
-                            while (lastTimdBarsInIdx >= 0)
+                            //only enters below if there is data already in the futureBarData list
+                            if (optionSpreadExpression.futureBarData.Count > 0)
                             {
-                                if (cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp.CompareTo(
-                                    optionSpreadExpression.futureBarData.Last().barTime) <= 0)
+                                lastTimdBarsInIdx = cqg_TimedBarsIn.Count - 1;
+
+                                while (lastTimdBarsInIdx >= 0)
                                 {
-                                    lastTimdBarsInIdx++;
-                                    break;
+                                    if (cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp.CompareTo(
+                                        optionSpreadExpression.futureBarData.Last().barTime) <= 0)
+                                    {
+                                        lastTimdBarsInIdx++;
+                                        break;
+                                    }
+
+                                    lastTimdBarsInIdx--;
                                 }
 
-                                lastTimdBarsInIdx--;
-                            }
-
-                            if (lastTimdBarsInIdx < 0)
-                            {
-                                lastTimdBarsInIdx = 0;
+                                if (lastTimdBarsInIdx < 0)
+                                {
+                                    lastTimdBarsInIdx = 0;
+                                }
                             }
 
                             while (lastTimdBarsInIdx < cqg_TimedBarsIn.Count)
@@ -518,25 +522,33 @@ namespace DataSupervisorForModel
 
 
                                 if (!error
-                                    && !optionSpreadExpression.reachedTransactionTimeBoundary
+                                    && !optionSpreadExpression.reachedTransactionBar
                                     && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) <= 0)
+                                    .CompareTo(optionSpreadExpression.transactionTime) <= 0)
                                 {
-                                    optionSpreadExpression.todayTransactionBar = ohlcData;
+                                    optionSpreadExpression.transactionBar = ohlcData;
                                 }
 
                                 if (!error
-                                    && !optionSpreadExpression.reachedTransactionTimeBoundary
+                                    && !optionSpreadExpression.reachedTransactionBar
                                     && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) >= 0)
+                                    .CompareTo(optionSpreadExpression.transactionTime) > 0)
                                 {
-                                    optionSpreadExpression.reachedTransactionTimeBoundary = true;
+                                    optionSpreadExpression.reachedTransactionBar = true;
+                                }
+
+                                if (!error
+                                && !optionSpreadExpression.reachedBarAfterTransactionBar
+                                && ohlcData.barTime
+                                .CompareTo(optionSpreadExpression.transactionTime) >= 0)
+                                {
+                                    optionSpreadExpression.reachedBarAfterTransactionBar = true;
                                 }
 
                                 if (!error
                                     && !optionSpreadExpression.reachedDecisionBar
                                     && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayDecisionTime) <= 0)
+                                    .CompareTo(optionSpreadExpression.decisionTime) <= 0)
                                 {
                                     optionSpreadExpression.decisionBar = ohlcData;
                                 }
@@ -544,7 +556,7 @@ namespace DataSupervisorForModel
                                 if (!error
                                     && !optionSpreadExpression.reachedDecisionBar
                                     && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayDecisionTime) >= 0)
+                                    .CompareTo(optionSpreadExpression.decisionTime) >= 0)
                                 {
                                     optionSpreadExpression.reachedDecisionBar = true;
                                 }
@@ -552,18 +564,18 @@ namespace DataSupervisorForModel
                                 if (!error
                                     && !optionSpreadExpression.reachedBarAfterDecisionBar
                                     && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayDecisionTime) > 0)
+                                    .CompareTo(optionSpreadExpression.decisionTime) > 0)
                                 {
                                     optionSpreadExpression.reachedBarAfterDecisionBar = true;
                                 }
 
-                                if (!error
-                                    && !optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot
-                                    && ohlcData.barTime
-                                    .CompareTo(optionSpreadExpression.todayDecisionTime.AddMinutes(1)) > 0)
-                                {
-                                    optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot = true;
-                                }
+                                //if (!error
+                                //    && !optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot
+                                //    && ohlcData.barTime
+                                //    .CompareTo(optionSpreadExpression.todayDecisionTime.AddMinutes(1)) > 0)
+                                //{
+                                //    optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot = true;
+                                //}
 
 
                                 //fillFutureDecisionAndTransactionPrice(optionSpreadExpression);
@@ -701,25 +713,33 @@ namespace DataSupervisorForModel
 
 
                             if (!error
-                                && !optionSpreadExpression.reachedTransactionTimeBoundary
+                                && !optionSpreadExpression.reachedTransactionBar
                                 && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) <= 0)
+                                .CompareTo(optionSpreadExpression.transactionTime) <= 0)
                             {
-                                optionSpreadExpression.todayTransactionBar = ohlcData;
+                                optionSpreadExpression.transactionBar = ohlcData;
                             }
 
                             if (!error
-                                && !optionSpreadExpression.reachedTransactionTimeBoundary
+                                && !optionSpreadExpression.reachedTransactionBar
                                 && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayTransactionTimeBoundary) >= 0)
+                                .CompareTo(optionSpreadExpression.transactionTime) >= 0)
                             {
-                                optionSpreadExpression.reachedTransactionTimeBoundary = true;
+                                optionSpreadExpression.reachedTransactionBar = true;
+                            }
+
+                            if (!error
+                                && !optionSpreadExpression.reachedBarAfterTransactionBar
+                                && ohlcData.barTime
+                                .CompareTo(optionSpreadExpression.transactionTime) >= 0)
+                            {
+                                optionSpreadExpression.reachedBarAfterTransactionBar = true;
                             }
 
                             if (!error
                                 && !optionSpreadExpression.reachedDecisionBar
                                 && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayDecisionTime) <= 0)
+                                .CompareTo(optionSpreadExpression.decisionTime) <= 0)
                             {
                                 optionSpreadExpression.decisionBar = ohlcData;
                             }
@@ -727,7 +747,7 @@ namespace DataSupervisorForModel
                             if (!error
                                 && !optionSpreadExpression.reachedDecisionBar
                                 && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayDecisionTime) >= 0)
+                                .CompareTo(optionSpreadExpression.decisionTime) >= 0)
                             {
                                 optionSpreadExpression.reachedDecisionBar = true;
                             }
@@ -735,18 +755,18 @@ namespace DataSupervisorForModel
                             if (!error
                                 && !optionSpreadExpression.reachedBarAfterDecisionBar
                                 && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayDecisionTime) > 0)
+                                .CompareTo(optionSpreadExpression.decisionTime) > 0)
                             {
                                 optionSpreadExpression.reachedBarAfterDecisionBar = true;
                             }
 
-                            if (!error
-                                && !optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot
-                                && ohlcData.barTime
-                                .CompareTo(optionSpreadExpression.todayDecisionTime.AddMinutes(1)) > 0)
-                            {
-                                optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot = true;
-                            }
+                            //if (!error
+                            //    && !optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot
+                            //    && ohlcData.barTime
+                            //    .CompareTo(optionSpreadExpression.todayDecisionTime.AddMinutes(1)) > 0)
+                            //{
+                            //    optionSpreadExpression.reached1MinAfterDecisionBarUsedForSnapshot = true;
+                            //}
 
 
                             //if (!optionSpreadExpression.futureBarData.Last().errorBar)

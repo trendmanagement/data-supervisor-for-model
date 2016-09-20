@@ -129,6 +129,8 @@ namespace DataSupervisorForModel
         private static void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
+
+             Task t = mongoDBConnectionAndSetup.updateBardataToMongo();
         }
 
         //private void SetupExpressionList()
@@ -333,7 +335,7 @@ namespace DataSupervisorForModel
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
         {
-            Task t = mongoDBConnectionAndSetup.createDoc();
+            Task t = mongoDBConnectionAndSetup.updateBardataToMongo();
 
             //Console.WriteLine(cqgDataManagement.instrumentList[0].description);
 
