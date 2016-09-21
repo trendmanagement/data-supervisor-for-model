@@ -18,7 +18,7 @@ namespace DataSupervisorForModel
     {
         private CQGDataManagement cqgDataManagement;
 
-        MongoDBConnectionAndSetup mongoDBConnectionAndSetup;
+        //MongoDBConnectionAndSetup mongoDBConnectionAndSetup;
 
         private static System.Timers.Timer aTimer;
 
@@ -33,7 +33,7 @@ namespace DataSupervisorForModel
 
             //DataCollectionLibrary DataCollectionLibrary = new DataCollectionLibrary();
 
-            mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+            //mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
 
 
             SetupInstrumentAndContractListToCollect();
@@ -46,7 +46,7 @@ namespace DataSupervisorForModel
         private void SetupInstrumentAndContractListToCollect()
         {
 
-            MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+            //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
             //mongoDBConnectionAndSetup.connectToMongoDB();
             //mongoDBConnectionAndSetup.createDocument();
             //mongoDBConnectionAndSetup.dropCollection();
@@ -81,7 +81,7 @@ namespace DataSupervisorForModel
                         .AddMinutes(1);
 
                     //now get the ose from mongo and see if it has the correct data in the future bar data field
-                    OptionSpreadExpression ose = mongoDBConnectionAndSetup.GetContractFromMongo(previousDateCollectionStart, contract, instrument);
+                    OptionSpreadExpression ose = MongoDBConnectionAndSetup.GetContractFromMongo(previousDateCollectionStart, contract, instrument);
 
 
                     //OptionSpreadExpression ose = new OptionSpreadExpression();
@@ -113,7 +113,7 @@ namespace DataSupervisorForModel
             //aTimer = new System.Timers.Timer(2000);
 
             // Create a timer with a two second interval.
-            aTimer = new System.Timers.Timer(2000);
+            aTimer = new System.Timers.Timer(30000);
 
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
@@ -130,7 +130,7 @@ namespace DataSupervisorForModel
         {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
 
-             Task t = mongoDBConnectionAndSetup.updateBardataToMongo();
+            //Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
         }
 
         //private void SetupExpressionList()
@@ -153,7 +153,7 @@ namespace DataSupervisorForModel
 
         private void testLoadIn()
         {
-            MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+            //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
 
             Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
 
@@ -166,19 +166,19 @@ namespace DataSupervisorForModel
             //    osefdb,
             //    new UpdateOptions { IsUpsert = true });
 
-            mongoDBConnectionAndSetup.MongoDataCollection.InsertOne(osefdb);
+            MongoDBConnectionAndSetup.MongoDataCollection.InsertOne(osefdb);
 
 
         }
 
         private void testGetData()
         {
-            MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+            //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
 
             var filterBuilder = Builders<Mongo_OptionSpreadExpression>.Filter;
             var filter = filterBuilder.Ne("Id", "barf");
 
-            var testExpression = mongoDBConnectionAndSetup.MongoDataCollection.Find(filter).SingleOrDefault();
+            var testExpression = MongoDBConnectionAndSetup.MongoDataCollection.Find(filter).SingleOrDefault();
 
             Console.WriteLine(testExpression.contract.cqgsymbol);
 
@@ -335,7 +335,7 @@ namespace DataSupervisorForModel
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
         {
-            Task t = mongoDBConnectionAndSetup.updateBardataToMongo();
+            Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
 
             //Console.WriteLine(cqgDataManagement.instrumentList[0].description);
 

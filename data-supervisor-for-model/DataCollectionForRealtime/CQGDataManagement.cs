@@ -426,11 +426,16 @@ namespace DataSupervisorForModel
                                     lastTimdBarsInIdx--;
                                 }
 
-                                if (lastTimdBarsInIdx < 0)
-                                {
-                                    lastTimdBarsInIdx = 0;
-                                }
+                                lastTimdBarsInIdx = lastTimdBarsInIdx < 0 ? 0 : lastTimdBarsInIdx;
+
+                                //if (lastTimdBarsInIdx < 0)
+                                //{
+                                //    lastTimdBarsInIdx = 0;
+                                //}
                             }
+
+                            //int lastIdxAdded = optionSpreadExpression.futureBarData.Count - 1;
+                            //lastIdxAdded = lastIdxAdded < 0 ? 0 : lastIdxAdded;
 
                             while (lastTimdBarsInIdx < cqg_TimedBarsIn.Count)
                             {
@@ -441,6 +446,8 @@ namespace DataSupervisorForModel
                                 OHLCData ohlcData = new OHLCData();
 
                                 optionSpreadExpression.futureBarData.Add(ohlcData);
+
+                                int lastIdxAdded = optionSpreadExpression.futureBarData.Count - 1;
 
                                 ohlcData.barTime = cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp;
 
@@ -582,7 +589,11 @@ namespace DataSupervisorForModel
 
                                 lastTimdBarsInIdx++;
 
+                                //
+                                Task t = MongoDBConnectionAndSetup.AddDataMongo(optionSpreadExpression, lastIdxAdded);
                             }
+
+                            
 
                             optionSpreadExpression.lastTimeFuturePriceUpdated =
                                             cqg_TimedBarsIn.EndTimestamp;

@@ -11,11 +11,12 @@ using AutoMapper;
 
 namespace DataSupervisorForModel
 {
-    class MongoDBConnectionAndSetup
+    static class MongoDBConnectionAndSetup
     {
-        protected static IMongoClient _client;
-        protected static IMongoDatabase _database;
-        private static string mongoDataCollection;
+        private static IMongoClient _client;
+        private static IMongoDatabase _database;
+        private static IMongoCollection<Mongo_OptionSpreadExpression> _optionSpreadExpressionCollection;
+        //private static string mongoDataCollection;
 
         static MongoDBConnectionAndSetup()
         {
@@ -23,20 +24,25 @@ namespace DataSupervisorForModel
 
             _database = _client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["MongoDbName"]);
 
-            mongoDataCollection = System.Configuration.ConfigurationManager.AppSettings["MongoCollection"];
+            //mongoDataCollection = System.Configuration.ConfigurationManager.AppSettings["MongoCollection"];
+
+            _optionSpreadExpressionCollection = _database.GetCollection<Mongo_OptionSpreadExpression>(
+                System.Configuration.ConfigurationManager.AppSettings["MongoCollection"]);
         }
 
-        public IMongoCollection<Mongo_OptionSpreadExpression> MongoDataCollection
+        public static IMongoCollection<Mongo_OptionSpreadExpression> MongoDataCollection
         {
-            get { return _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection); }
+            get { return _database.GetCollection<Mongo_OptionSpreadExpression>(
+                System.Configuration.ConfigurationManager.AppSettings["MongoCollection"]); }
         }
 
-        internal async Task dropCollection()
+        internal static async Task dropCollection()
         {
-            await _database.DropCollectionAsync(mongoDataCollection);
+            await _database.DropCollectionAsync(
+                System.Configuration.ConfigurationManager.AppSettings["MongoCollection"]);
         }
 
-        internal async Task updateBardataToMongo()
+        internal static async Task UpdateBardataToMongo()
         {
             //Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
 
@@ -49,9 +55,12 @@ namespace DataSupervisorForModel
 
                 //Mongo_OptionSpreadExpression mongoOse = (Mongo_OptionSpreadExpression)ose;
 
-                Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
+                try
+                {
+                    Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
 
-                Mongo_OptionSpreadExpression mongoOse = Mapper.Map<Mongo_OptionSpreadExpression>(ose);
+                    Mongo_OptionSpreadExpression mongoOse = Mapper.Map<Mongo_OptionSpreadExpression>(ose);
+                
 
                 //string json = Newtonsoft.Json.JsonConvert.SerializeObject(mongoOse);
                 //Bsondo
@@ -59,48 +68,88 @@ namespace DataSupervisorForModel
                 //MongoDB.Bson.BsonDocument document
                 //    = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(json);
 
-                var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
+                //var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
                 //await collection.InsertOneAsync(mongoOse);
 
-                var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Eq("_id", mongoOse.contract.idcontract);
+                    var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Where(x => x._id == mongoOse.contract.idcontract);
 
-                await collection.UpdateOneAsync(filter, Builders<Mongo_OptionSpreadExpression>.Update                    
-                    .Set("futureBarData", ose.futureBarData),
-                    new UpdateOptions { IsUpsert = true });
+                    //var update = Builders<Mongo_OptionSpreadExpression>.Update..Eq("_id", mongoOse.contract.idcontract);
+
+                    var update = Builders<Mongo_OptionSpreadExpression>.Update
+                        .Set("futureBarData", ose.futureBarData);
+
+
+                    await _optionSpreadExpressionCollection.UpdateOneAsync(filter, update);
+
+                }
+                catch (Exception e)
+                {
+                    TSErrorCatch.debugWriteOut(e.ToString());
+                }
 
                 //await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
                 //    new UpdateOptions { IsUpsert = true });
 
-                //result = collection.Find(filter).SingleOrDefault();
+                
+            }
+        }
 
-                //using (var cursor = await collection.FindAsync(filter))
-                //{
-                //    while (await cursor.MoveNextAsync())
-                //    {
-                //        var batch = cursor.Current;
-                //        foreach (var document in batch)
-                //        {
-                //            // process document
-                //            Console.WriteLine(document);
+        internal static async Task AddDataMongo(Mongo_OptionSpreadExpression ose, int indexToAdd)
+        {
+            //Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
+
+            //osefdb.contract.cqgsymbol = "test";
+
+            //foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            {
+                //Mongo_OptionSpreadExpression osefdb = (Mongo_OptionSpreadExpression)ose;
 
 
+                //Mongo_OptionSpreadExpression mongoOse = (Mongo_OptionSpreadExpression)ose;
 
-                //            //var x = BsonSerializer.Deserialize<(document);
+                try
+                {
+                    Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
 
-                //            //var x = MongoDB.Bson.BsonDocument.
+                    Mongo_OptionSpreadExpression mongoOse = Mapper.Map<Mongo_OptionSpreadExpression>(ose);
 
-                //            //JsonSerializer serializer = new JsonSerializer();
 
-                //            //TestExpression x = serializer.Deserialize<TestExpression>(document);
+                    //string json = Newtonsoft.Json.JsonConvert.SerializeObject(mongoOse);
+                    //Bsondo
 
-                //            //Console.WriteLine(document["cqgSymbol"]);
+                    //MongoDB.Bson.BsonDocument document
+                    //    = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(json);
 
-                //            //count++;
-                //        }
-                //    }
-                //}
+                    //var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
+                    //await collection.InsertOneAsync(mongoOse);
 
-                //return;
+                    //var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Where(x => x._id == mongoOse.contract.idcontract);
+
+                    //var update = Builders<Mongo_OptionSpreadExpression>.Update.Push("futureBarData", mongoOse.futureBarData[indexToAdd]);
+
+                    var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Where(x => x._id == mongoOse.contract.idcontract);
+
+                    //var update = Builders<Mongo_OptionSpreadExpression>.Update..Eq("_id", mongoOse.contract.idcontract);
+
+                    //var update = Builders<Mongo_OptionSpreadExpression>.Update
+                    //    .Set("futureBarData", mongoOse.futureBarData);
+
+
+                    await _optionSpreadExpressionCollection.ReplaceOneAsync(filter, mongoOse);
+
+                    //await _optionSpreadExpressionCollection.UpdateOneAsync(filter, update);
+
+
+                }
+                catch (Exception e)
+                {
+                    TSErrorCatch.debugWriteOut(e.ToString());
+                }
+
+                //await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
+                //    new UpdateOptions { IsUpsert = true });
+
+
             }
         }
 
@@ -114,12 +163,12 @@ namespace DataSupervisorForModel
         /// <param name="instrument"></param>
         /// <returns>OptionSpreadExpression</returns>
 
-        internal OptionSpreadExpression GetContractFromMongo(DateTime previousDateCollectionStart, Contract contract, Instrument instrument)
+        internal static OptionSpreadExpression GetContractFromMongo(DateTime previousDateCollectionStart, Contract contract, Instrument instrument)
         {
 
             OptionSpreadExpression ose;
 
-            var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
+            //var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
             //await collection.InsertOneAsync(mongoOse);
 
             var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Eq("_id", contract.idcontract);
@@ -127,7 +176,7 @@ namespace DataSupervisorForModel
             //await collection.UpdateOneAsync(filter, Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
             //    new UpdateOptions { IsUpsert = true });
 
-            Mongo_OptionSpreadExpression mongoOse = collection.Find(filter).SingleOrDefault();
+            Mongo_OptionSpreadExpression mongoOse = _optionSpreadExpressionCollection.Find(filter).SingleOrDefault();
             // Mongo_OptionSpreadExpression mongoOse = collection.find();
 
 
@@ -144,13 +193,15 @@ namespace DataSupervisorForModel
 
                 ose.previousDateTimeBoundaryStart = previousDateCollectionStart;
 
+                ose.futureBarData = new List<OHLCData>();
+
                 Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
 
                 Mongo_OptionSpreadExpression mongoOseToReplace = Mapper.Map<Mongo_OptionSpreadExpression>(ose);
 
                 //put replace code here
 
-                collection.ReplaceOne(filter, mongoOseToReplace,
+                _optionSpreadExpressionCollection.ReplaceOne(filter, mongoOseToReplace,
                     new UpdateOptions { IsUpsert = true });
             }
             else
@@ -170,7 +221,7 @@ namespace DataSupervisorForModel
         }
 
 
-        internal async Task createDocument()
+        internal static async Task createDocument()
         {
             var document = new BsonDocument
             {
@@ -208,7 +259,7 @@ namespace DataSupervisorForModel
             await collection.InsertOneAsync(document);
         }
 
-        internal async Task getDocument()
+        internal static async Task getDocument()
         {
             var collection = _database.GetCollection<BsonDocument>("restaurants");
 

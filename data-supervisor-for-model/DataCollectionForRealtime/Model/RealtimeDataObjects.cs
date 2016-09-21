@@ -14,6 +14,7 @@ namespace DataSupervisorForModel
 
     public class OHLCData
     {
+        [BsonId]
         [BsonRepresentation(BsonType.DateTime)]
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime barTime { get; set; }
@@ -54,6 +55,7 @@ namespace DataSupervisorForModel
         //public List<OHLCData> futureBarData;
     }
 
+    
     public class Mongo_OptionSpreadExpression
     {
         //[BsonRepresentation(BsonType.ObjectId)]
@@ -73,7 +75,7 @@ namespace DataSupervisorForModel
         public DateTime previousDateTimeBoundaryStart { get; set; }
 
         //[BsonRepresentation(BsonType.Array)]
-        public List<OHLCData> futureBarData { get; set; }
+        public IList<OHLCData> futureBarData { get; set; }
 
 
 
