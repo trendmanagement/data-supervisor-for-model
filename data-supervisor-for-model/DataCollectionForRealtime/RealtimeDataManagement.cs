@@ -97,10 +97,10 @@ namespace DataSupervisorForModel
 
                     DataCollectionLibrary.optionSpreadExpressionHashTable_keycontractId.Add(contract.idcontract, ose);
 
-                    break;
+                    //break;
                 }
 
-                break;
+                //break;
             }
 
             //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);

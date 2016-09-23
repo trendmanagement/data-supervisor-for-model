@@ -81,6 +81,8 @@ namespace DataSupervisorForModel
         [BsonRepresentation(BsonType.DateTime)]
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime previousDateTimeBoundaryStart { get; set; }
+
+
     }
 
     
@@ -103,11 +105,11 @@ namespace DataSupervisorForModel
         //public DateTime previousDateTimeBoundaryStart { get; set; }
 
         //[BsonRepresentation(BsonType.Array)]
-        public IList<OHLCData> futureBarData { get; set; }
+        //public IList<OHLCData> futureBarData { get; set; }
 
 
 
-
+        public int lastIdxToAdd = 0;
 
 
     //}
@@ -118,6 +120,8 @@ namespace DataSupervisorForModel
 
         public CQG.CQGInstrument cqgInstrument;
         public CQG.CQGTimedBars futureTimedBars;
+
+        public DateTime CQGBarQueryStart;
 
         public double ask;
         public bool askFilled;
