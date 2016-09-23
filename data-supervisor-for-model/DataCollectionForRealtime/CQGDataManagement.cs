@@ -257,7 +257,7 @@ namespace DataSupervisorForModel
                 timedBarsRequest.Continuation = CQG.eTimeSeriesContinuationType.tsctNoContinuation;
                 //do not want continuation bars
 
-                DateTime rangeStart = optionSpreadExpression.previousDateTimeBoundaryStart;
+                DateTime rangeStart = optionSpreadExpression.contract.previousDateTimeBoundaryStart;
 
                 DateTime rangeEnd = m_CEL.Environment.LineTime;
 
@@ -417,7 +417,7 @@ namespace DataSupervisorForModel
                                 while (lastTimdBarsInIdx >= 0)
                                 {
                                     if (cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp.CompareTo(
-                                        optionSpreadExpression.futureBarData.Last().barTime) <= 0)
+                                        optionSpreadExpression.futureBarData.Last().bartime) <= 0)
                                     {
                                         lastTimdBarsInIdx++;
                                         break;
@@ -435,7 +435,7 @@ namespace DataSupervisorForModel
                             }
 
                             //int lastIdxAdded = optionSpreadExpression.futureBarData.Count - 1;
-                            //lastIdxAdded = lastIdxAdded < 0 ? 0 : lastIdxAdded;
+                            int firstIdxAdded = optionSpreadExpression.futureBarData.Count;
 
                             while (lastTimdBarsInIdx < cqg_TimedBarsIn.Count)
                             {
@@ -447,9 +447,9 @@ namespace DataSupervisorForModel
 
                                 optionSpreadExpression.futureBarData.Add(ohlcData);
 
-                                int lastIdxAdded = optionSpreadExpression.futureBarData.Count - 1;
+                                //int lastIdxAdded = optionSpreadExpression.futureBarData.Count - 1;
 
-                                ohlcData.barTime = cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp;
+                                ohlcData.bartime = cqg_TimedBarsIn[lastTimdBarsInIdx].Timestamp;
 
                                 int volume = 0;
 
@@ -506,7 +506,7 @@ namespace DataSupervisorForModel
                                     error = true;
                                 }
 
-                                ohlcData.errorBar = error;
+                                ohlcData.errorbar = error;
 
 
                                 //OHLCData futureBarData = optionSpreadExpressionList[expressionCounter].futureBarData[0];
@@ -530,7 +530,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                     && !optionSpreadExpression.reachedTransactionBar
-                                    && ohlcData.barTime
+                                    && ohlcData.bartime
                                     .CompareTo(optionSpreadExpression.transactionTime) <= 0)
                                 {
                                     optionSpreadExpression.transactionBar = ohlcData;
@@ -538,7 +538,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                     && !optionSpreadExpression.reachedTransactionBar
-                                    && ohlcData.barTime
+                                    && ohlcData.bartime
                                     .CompareTo(optionSpreadExpression.transactionTime) > 0)
                                 {
                                     optionSpreadExpression.reachedTransactionBar = true;
@@ -546,7 +546,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                 && !optionSpreadExpression.reachedBarAfterTransactionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.transactionTime) >= 0)
                                 {
                                     optionSpreadExpression.reachedBarAfterTransactionBar = true;
@@ -554,7 +554,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                     && !optionSpreadExpression.reachedDecisionBar
-                                    && ohlcData.barTime
+                                    && ohlcData.bartime
                                     .CompareTo(optionSpreadExpression.decisionTime) <= 0)
                                 {
                                     optionSpreadExpression.decisionBar = ohlcData;
@@ -562,7 +562,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                     && !optionSpreadExpression.reachedDecisionBar
-                                    && ohlcData.barTime
+                                    && ohlcData.bartime
                                     .CompareTo(optionSpreadExpression.decisionTime) >= 0)
                                 {
                                     optionSpreadExpression.reachedDecisionBar = true;
@@ -570,7 +570,7 @@ namespace DataSupervisorForModel
 
                                 if (!error
                                     && !optionSpreadExpression.reachedBarAfterDecisionBar
-                                    && ohlcData.barTime
+                                    && ohlcData.bartime
                                     .CompareTo(optionSpreadExpression.decisionTime) > 0)
                                 {
                                     optionSpreadExpression.reachedBarAfterDecisionBar = true;
@@ -590,10 +590,10 @@ namespace DataSupervisorForModel
                                 lastTimdBarsInIdx++;
 
                                 //
-                                Task t = MongoDBConnectionAndSetup.AddDataMongo(optionSpreadExpression, lastIdxAdded);
+                                
                             }
 
-                            
+                            Task t = MongoDBConnectionAndSetup.AddDataMongo(optionSpreadExpression, firstIdxAdded);
 
                             optionSpreadExpression.lastTimeFuturePriceUpdated =
                                             cqg_TimedBarsIn.EndTimestamp;
@@ -639,7 +639,7 @@ namespace DataSupervisorForModel
                         while (futureBarDataCounter >= 0)
                         {
                             if (cqg_TimedBarsIn[index].Timestamp.CompareTo(
-                                optionSpreadExpression.futureBarData[futureBarDataCounter].barTime) == 0)
+                                optionSpreadExpression.futureBarData[futureBarDataCounter].bartime) == 0)
                             {
                                 foundBar = true;
                                 break;
@@ -715,7 +715,7 @@ namespace DataSupervisorForModel
                                 error = true;
                             }
 
-                            ohlcData.errorBar = error;
+                            ohlcData.errorbar = error;
 
 
                             //**********************************************
@@ -725,7 +725,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedTransactionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.transactionTime) <= 0)
                             {
                                 optionSpreadExpression.transactionBar = ohlcData;
@@ -733,7 +733,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedTransactionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.transactionTime) >= 0)
                             {
                                 optionSpreadExpression.reachedTransactionBar = true;
@@ -741,7 +741,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedBarAfterTransactionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.transactionTime) >= 0)
                             {
                                 optionSpreadExpression.reachedBarAfterTransactionBar = true;
@@ -749,7 +749,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedDecisionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.decisionTime) <= 0)
                             {
                                 optionSpreadExpression.decisionBar = ohlcData;
@@ -757,7 +757,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedDecisionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.decisionTime) >= 0)
                             {
                                 optionSpreadExpression.reachedDecisionBar = true;
@@ -765,7 +765,7 @@ namespace DataSupervisorForModel
 
                             if (!error
                                 && !optionSpreadExpression.reachedBarAfterDecisionBar
-                                && ohlcData.barTime
+                                && ohlcData.bartime
                                 .CompareTo(optionSpreadExpression.decisionTime) > 0)
                             {
                                 optionSpreadExpression.reachedBarAfterDecisionBar = true;
@@ -792,6 +792,8 @@ namespace DataSupervisorForModel
 
                             //    fillFutureDecisionAndTransactionPrice(optionSpreadExpression);
                             //}
+
+                            Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo(optionSpreadExpression, futureBarDataCounter);
 
                         }
 

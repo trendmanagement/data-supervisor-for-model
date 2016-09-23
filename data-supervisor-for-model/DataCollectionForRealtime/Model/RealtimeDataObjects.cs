@@ -15,9 +15,15 @@ namespace DataSupervisorForModel
     public class OHLCData
     {
         [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId _id { get; set; }
+
+        [BsonRepresentation(BsonType.Int64)]
+        public long idcontract { get; set; }
+
         [BsonRepresentation(BsonType.DateTime)]
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime barTime { get; set; }
+        public DateTime bartime { get; set; }
 
         [BsonRepresentation(BsonType.Double)]
         public double open { get; set; }
@@ -36,7 +42,7 @@ namespace DataSupervisorForModel
 
         //public int cumulativeVolume { get; set; }
 
-        public bool errorBar { get; set; }
+        public bool errorbar { get; set; }
     };
 
     public class TheoreticalBar
@@ -50,29 +56,51 @@ namespace DataSupervisorForModel
         //public bool eodAnalysisAtInstrument;
     }
 
-    public class Contract : tblcontract
+    public class Contract
     {
-        //public List<OHLCData> futureBarData;
+        [BsonId]
+        [BsonRepresentation(BsonType.Int64)]
+        public long idcontract;
+
+        public string contractname;
+
+        public char month;
+
+        public short monthint;
+
+        public long year;
+
+        public long idinstrument;
+
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        public System.DateTime expirationdate;
+
+        public string cqgsymbol;
+
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        public DateTime previousDateTimeBoundaryStart { get; set; }
     }
 
     
-    public class Mongo_OptionSpreadExpression
+    public class OptionSpreadExpression
     {
         //[BsonRepresentation(BsonType.ObjectId)]
         //public ObjectId Id { get; set; }
 
-        [BsonId]
-        [BsonRepresentation(BsonType.Int64)]
-        public long _id { get; set; }
+        //[BsonId]
+        //[BsonRepresentation(BsonType.Int64)]
+        //public long _id { get; set; }
 
         public Contract contract { get; set; }
 
         /// <summary>
         /// used to mark the start of the future bar data for collection
         /// </summary>
-        [BsonRepresentation(BsonType.DateTime)]
-        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime previousDateTimeBoundaryStart { get; set; }
+        //[BsonRepresentation(BsonType.DateTime)]
+        //[BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        //public DateTime previousDateTimeBoundaryStart { get; set; }
 
         //[BsonRepresentation(BsonType.Array)]
         public IList<OHLCData> futureBarData { get; set; }
@@ -82,10 +110,10 @@ namespace DataSupervisorForModel
 
 
 
-    }
+    //}
 
-    public class OptionSpreadExpression : Mongo_OptionSpreadExpression
-    {
+    //public class OptionSpreadExpression : Mongo_OptionSpreadExpression
+    //{
         public Instrument instrument { get; set; }
 
         public CQG.CQGInstrument cqgInstrument;

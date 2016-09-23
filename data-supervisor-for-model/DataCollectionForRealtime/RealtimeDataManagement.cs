@@ -38,7 +38,7 @@ namespace DataSupervisorForModel
 
             SetupInstrumentAndContractListToCollect();
 
-            SetupMongoUpdateTimerThread();
+            //SetupMongoUpdateTimerThread();
 
            
         }
@@ -65,12 +65,18 @@ namespace DataSupervisorForModel
                 ref DataCollectionLibrary.contractHashTableByInstId, DateTime.Today);
 
 
-
+            //Dictionary<long, Contract> contractListFromMongo = MongoDBConnectionAndSetup.getContractListFromMongo();
 
             foreach (KeyValuePair<long, List<Contract>> contractHashEntry in DataCollectionLibrary.contractHashTableByInstId)
             {
+
                 foreach (Contract contract in contractHashEntry.Value)
                 {
+                   // if (contractListFromMongo.ContainsKey(contract.idcontract))
+                   // {
+                   //     contractListFromMongo.Remove(contract.idcontract);
+                   // }
+
                     Instrument instrument = DataCollectionLibrary.instrumentHashTable[contract.idinstrument];
 
                     DateTime previousDateCollectionStart = TMLDBReader.GetContractPreviousDateTime(contract.idcontract)
@@ -80,28 +86,27 @@ namespace DataSupervisorForModel
                             instrument.customdayboundarytime.Minute)
                         .AddMinutes(1);
 
+                    contract.previousDateTimeBoundaryStart = previousDateCollectionStart;
+
                     //now get the ose from mongo and see if it has the correct data in the future bar data field
-                    OptionSpreadExpression ose = MongoDBConnectionAndSetup.GetContractFromMongo(previousDateCollectionStart, contract, instrument);
+                    OptionSpreadExpression ose = 
+                        MongoDBConnectionAndSetup.GetContractFromMongo(contract, instrument);
 
-
-                    //OptionSpreadExpression ose = new OptionSpreadExpression();
-
-                    //ose.normalSubscriptionRequest = true;
-
-                    //ose._id = contract.idcontract;
-
-                    //ose.contract = contract;
-
-                    //ose.instrument = instrument;
-
-
-                    //ose.previousDateTimeBoundaryStart = previousDateCollectionStart;
 
                     DataCollectionLibrary.optionSpreadExpressionList.Add(ose);
 
                     DataCollectionLibrary.optionSpreadExpressionHashTable_keycontractId.Add(contract.idcontract, ose);
+
+                    break;
                 }
+
+                break;
             }
+
+            //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);
+
+
+
         }
 
         private void SetupMongoUpdateTimerThread()
@@ -151,39 +156,39 @@ namespace DataSupervisorForModel
         //    //cqgDataManagement.optionSpreadExpressionList
         //}
 
-        private void testLoadIn()
-        {
-            //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+        //private void testLoadIn()
+        //{
+        //    //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
 
-            Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
-
-
-            osefdb.contract.cqgsymbol = "F.EPU16";
-            //osefdb.instrument = DataCollectionLibrary.instrumentHashTable[11];
-
-            //mongoDBConnectionAndSetup.MongoDataCollection.ReplaceOne(
-            //    item => item.cqgSymbol == osefdb.cqgSymbol,
-            //    osefdb,
-            //    new UpdateOptions { IsUpsert = true });
-
-            MongoDBConnectionAndSetup.MongoDataCollection.InsertOne(osefdb);
+        //    Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
 
 
-        }
+        //    osefdb.contract.cqgsymbol = "F.EPU16";
+        //    //osefdb.instrument = DataCollectionLibrary.instrumentHashTable[11];
 
-        private void testGetData()
-        {
-            //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+        //    //mongoDBConnectionAndSetup.MongoDataCollection.ReplaceOne(
+        //    //    item => item.cqgSymbol == osefdb.cqgSymbol,
+        //    //    osefdb,
+        //    //    new UpdateOptions { IsUpsert = true });
 
-            var filterBuilder = Builders<Mongo_OptionSpreadExpression>.Filter;
-            var filter = filterBuilder.Ne("Id", "barf");
-
-            var testExpression = MongoDBConnectionAndSetup.MongoDataCollection.Find(filter).SingleOrDefault();
-
-            Console.WriteLine(testExpression.contract.cqgsymbol);
+        //    MongoDBConnectionAndSetup.MongoDataCollection.InsertOne(osefdb);
 
 
-        }
+        //}
+
+        //private void testGetData()
+        //{
+        //    //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
+
+        //    var filterBuilder = Builders<Mongo_OptionSpreadExpression>.Filter;
+        //    var filter = filterBuilder.Ne("Id", "barf");
+
+        //    var testExpression = MongoDBConnectionAndSetup.MongoDataCollection.Find(filter).SingleOrDefault();
+
+        //    Console.WriteLine(testExpression.contract.cqgsymbol);
+
+
+        //}
 
         private void btnCallAllInstruments_Click(object sender, EventArgs e)
         {
@@ -335,7 +340,7 @@ namespace DataSupervisorForModel
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
         {
-            Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
+            //Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
 
             //Console.WriteLine(cqgDataManagement.instrumentList[0].description);
 
