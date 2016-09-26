@@ -121,6 +121,8 @@ namespace DataSupervisorForModel
         public CQG.CQGInstrument cqgInstrument;
         public CQG.CQGTimedBars futureTimedBars;
 
+        public int row;
+
         public DateTime CQGBarQueryStart;
 
         public double ask;

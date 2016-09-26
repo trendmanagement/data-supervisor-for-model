@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RealtimeDataManagement));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.statusStripOptionMonitor = new System.Windows.Forms.StatusStrip();
             this.ConnectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusSubscribeData = new System.Windows.Forms.ToolStripStatusLabel();
@@ -44,17 +44,16 @@
             this.btnCQGRecon = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripSeparator();
             this.mainRealtimeMenuStrip = new System.Windows.Forms.MenuStrip();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPageExpressionsList = new System.Windows.Forms.TabPage();
-            this.dataGridViewExpressionList = new System.Windows.Forms.DataGridView();
-            this.tabLog = new System.Windows.Forms.TabPage();
             this.richTextBoxLog = new System.Windows.Forms.RichTextBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.expressionListDataGrid = new System.Windows.Forms.DataGridView();
             this.statusStripOptionMonitor.SuspendLayout();
             this.mainRealtimeMenuStrip.SuspendLayout();
-            this.tabControl1.SuspendLayout();
-            this.tabPageExpressionsList.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExpressionList)).BeginInit();
-            this.tabLog.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.expressionListDataGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStripOptionMonitor
@@ -182,83 +181,69 @@
             this.mainRealtimeMenuStrip.TabIndex = 8;
             this.mainRealtimeMenuStrip.Text = "menuStrip1";
             // 
-            // tabControl1
-            // 
-            this.tabControl1.Controls.Add(this.tabPageExpressionsList);
-            this.tabControl1.Controls.Add(this.tabLog);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(795, 364);
-            this.tabControl1.TabIndex = 9;
-            // 
-            // tabPageExpressionsList
-            // 
-            this.tabPageExpressionsList.Controls.Add(this.dataGridViewExpressionList);
-            this.tabPageExpressionsList.Location = new System.Drawing.Point(4, 22);
-            this.tabPageExpressionsList.Name = "tabPageExpressionsList";
-            this.tabPageExpressionsList.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageExpressionsList.Size = new System.Drawing.Size(787, 338);
-            this.tabPageExpressionsList.TabIndex = 0;
-            this.tabPageExpressionsList.Text = "Expression List";
-            this.tabPageExpressionsList.UseVisualStyleBackColor = true;
-            // 
-            // dataGridViewExpressionList
-            // 
-            this.dataGridViewExpressionList.AllowUserToAddRows = false;
-            this.dataGridViewExpressionList.AllowUserToDeleteRows = false;
-            this.dataGridViewExpressionList.AllowUserToResizeRows = false;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewExpressionList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.dataGridViewExpressionList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewExpressionList.DefaultCellStyle = dataGridViewCellStyle4;
-            this.dataGridViewExpressionList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewExpressionList.Location = new System.Drawing.Point(3, 3);
-            this.dataGridViewExpressionList.Name = "dataGridViewExpressionList";
-            this.dataGridViewExpressionList.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            this.dataGridViewExpressionList.Size = new System.Drawing.Size(781, 332);
-            this.dataGridViewExpressionList.TabIndex = 6;
-            // 
-            // tabLog
-            // 
-            this.tabLog.Controls.Add(this.richTextBoxLog);
-            this.tabLog.Location = new System.Drawing.Point(4, 22);
-            this.tabLog.Name = "tabLog";
-            this.tabLog.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLog.Size = new System.Drawing.Size(787, 338);
-            this.tabLog.TabIndex = 2;
-            this.tabLog.Text = "Log";
-            this.tabLog.UseVisualStyleBackColor = true;
-            // 
             // richTextBoxLog
             // 
             this.richTextBoxLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBoxLog.Location = new System.Drawing.Point(3, 3);
+            this.richTextBoxLog.Location = new System.Drawing.Point(0, 0);
             this.richTextBoxLog.Name = "richTextBoxLog";
-            this.richTextBoxLog.Size = new System.Drawing.Size(781, 332);
+            this.richTextBoxLog.Size = new System.Drawing.Size(498, 364);
             this.richTextBoxLog.TabIndex = 0;
             this.richTextBoxLog.Text = "";
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 27);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.expressionListDataGrid);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.richTextBoxLog);
+            this.splitContainer1.Size = new System.Drawing.Size(795, 364);
+            this.splitContainer1.SplitterDistance = 293;
+            this.splitContainer1.TabIndex = 10;
+            // 
+            // expressionListDataGrid
+            // 
+            this.expressionListDataGrid.AllowUserToAddRows = false;
+            this.expressionListDataGrid.AllowUserToDeleteRows = false;
+            this.expressionListDataGrid.AllowUserToResizeRows = false;
+            this.expressionListDataGrid.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.expressionListDataGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.expressionListDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.expressionListDataGrid.ColumnHeadersVisible = false;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.expressionListDataGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            this.expressionListDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.expressionListDataGrid.Location = new System.Drawing.Point(0, 0);
+            this.expressionListDataGrid.Name = "expressionListDataGrid";
+            this.expressionListDataGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            this.expressionListDataGrid.Size = new System.Drawing.Size(293, 364);
+            this.expressionListDataGrid.TabIndex = 7;
             // 
             // RealtimeDataManagement
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(795, 413);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.mainRealtimeMenuStrip);
             this.Controls.Add(this.statusStripOptionMonitor);
             this.Name = "RealtimeDataManagement";
@@ -268,10 +253,11 @@
             this.statusStripOptionMonitor.PerformLayout();
             this.mainRealtimeMenuStrip.ResumeLayout(false);
             this.mainRealtimeMenuStrip.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPageExpressionsList.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExpressionList)).EndInit();
-            this.tabLog.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.expressionListDataGrid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -292,11 +278,9 @@
         private System.Windows.Forms.ToolStripButton btnCQGRecon;
         private System.Windows.Forms.ToolStripSeparator toolStripButton3;
         private System.Windows.Forms.MenuStrip mainRealtimeMenuStrip;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPageExpressionsList;
-        private System.Windows.Forms.DataGridView dataGridViewExpressionList;
-        private System.Windows.Forms.TabPage tabLog;
         private System.Windows.Forms.RichTextBox richTextBoxLog;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.DataGridView expressionListDataGrid;
     }
 }
 

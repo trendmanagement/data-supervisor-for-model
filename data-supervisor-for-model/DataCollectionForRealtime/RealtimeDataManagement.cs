@@ -30,6 +30,11 @@ namespace DataSupervisorForModel
 
             AsyncTaskListener.UpdatedStatus += AsyncTaskListener_UpdatedStatus;
 
+            
+
+            AsyncTaskListener.UpdateExpressionGrid += AsyncTaskListener_ExpressionListUpdate;
+
+
 
             //DataCollectionLibrary DataCollectionLibrary = new DataCollectionLibrary();
 
@@ -67,6 +72,8 @@ namespace DataSupervisorForModel
 
             //Dictionary<long, Contract> contractListFromMongo = MongoDBConnectionAndSetup.getContractListFromMongo();
 
+            int row = 0;
+
             foreach (KeyValuePair<long, List<Contract>> contractHashEntry in DataCollectionLibrary.contractHashTableByInstId)
             {
 
@@ -92,6 +99,8 @@ namespace DataSupervisorForModel
                     OptionSpreadExpression ose = 
                         MongoDBConnectionAndSetup.GetContractFromMongo(contract, instrument);
 
+                    ose.row = row++;
+
 
                     DataCollectionLibrary.optionSpreadExpressionList.Add(ose);
 
@@ -103,9 +112,15 @@ namespace DataSupervisorForModel
                 //break;
             }
 
+            expressionListDataGrid.RowCount = row;
+            expressionListDataGrid.ColumnCount = 1;
+
+            //expressionListDataGrid.hea.Columns[-1].Width = 100;
+            expressionListDataGrid.Columns[0].Width = 150;
+
             //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);
 
-
+            
 
         }
 
@@ -333,8 +348,70 @@ namespace DataSupervisorForModel
             //*******************
         }
 
+         private void AsyncTaskListener_ExpressionListUpdate(
+            OptionSpreadExpression ose)
+        {
+            Action action = new Action(
+                () =>
+                {
+
+                    expressionListDataGrid
+                        .Rows[ose.row].HeaderCell.Value
+                        = ose.contract.contractname;
+
+                    if (ose.futureTimedBars != null 
+                        && ose.futureTimedBars.Count > 0
+                        && ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp != null)
+                    {
+                        expressionListDataGrid
+                            .Rows[ose.row].Cells[0].Value
+                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp;
+                    }
+
+                    /*expressionListDataGrid
+                        .Rows[ose.row].Cells[1].Value
+                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Open;
+
+                    expressionListDataGrid
+                        .Rows[ose.row].Cells[2].Value
+                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].High;
+
+                    expressionListDataGrid
+                        .Rows[ose.row].Cells[3].Value
+                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Low;
+
+                    expressionListDataGrid
+                        .Rows[ose.row].Cells[4].Value
+                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Close;
+                        */
+
+
+
+                    //if (!string.IsNullOrWhiteSpace(message))
+                    //{
+                    //    richTextBoxLog.Text += message + "\n";
+                    //    richTextBoxLog.Select(richTextBoxLog.Text.Length, richTextBoxLog.Text.Length);
+                    //   richTextBoxLog.ScrollToCaret();
+                    //}
+                });
+
+            try
+            {
+                Invoke(action);
+            }
+            catch (ObjectDisposedException)
+            {
+                // User closed the form
+            }
+        }
+
         private void RealtimeDataManagement_Load(object sender, EventArgs e)
         {
+            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            {
+                AsyncTaskListener.ExpressionListUpdate(ose);
+            }
+
             cqgDataManagement = new CQGDataManagement(this);
         }
 

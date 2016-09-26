@@ -517,6 +517,7 @@ namespace DataSupervisorForModel
                                         cqg_TimedBarsIn.EndTimestamp;
 
 
+                        AsyncTaskListener.ExpressionListUpdate(ose);
                     }
 
                 }

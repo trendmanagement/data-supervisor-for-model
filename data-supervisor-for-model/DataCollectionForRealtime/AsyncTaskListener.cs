@@ -37,6 +37,9 @@ namespace DataSupervisorForModel
             STATUS_TYPE connStatus = STATUS_TYPE.NO_STATUS);
         public static event UpdateStatusDelegate UpdatedStatus;
 
+        public delegate void UpdateExpressionGridDelegate(OptionSpreadExpression ose = null);
+        public static event UpdateExpressionGridDelegate UpdateExpressionGrid;
+
         // The period of RPS calculation and reporting (in seconds)
         static TimeSpan period = new TimeSpan(0, 0, 1);
 
@@ -103,6 +106,12 @@ namespace DataSupervisorForModel
         {
             // Update status strip
             UpdatedStatus.Invoke(msg, statusFormat, connStatus);
+        }
+
+        public static void ExpressionListUpdate(OptionSpreadExpression ose)
+        {
+            // Update status strip
+            UpdateExpressionGrid.Invoke(ose);
         }
     }
 }
