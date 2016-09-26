@@ -342,7 +342,8 @@ namespace DataSupervisorForModel
             //catch (ObjectDisposedException)
             {
                 // User closed the form
-                Console.Write("test");
+                //Console.Write("test");
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
 
             //*******************

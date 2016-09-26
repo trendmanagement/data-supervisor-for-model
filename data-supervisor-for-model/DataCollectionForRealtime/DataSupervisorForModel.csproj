@@ -94,6 +94,7 @@
     <Compile Include="DataCollectionLibrary.cs" />
     <Compile Include="DataManagementUtility.cs" />
     <Compile Include="DBsystem\MongoDBConnectionAndSetup.cs" />
+    <Compile Include="MongoClientOptions\Builder.cs" />
     <Compile Include="OptionCalcs.cs" />
     <Compile Include="RealtimeDataManagement.cs">
       <SubType>Form</SubType>

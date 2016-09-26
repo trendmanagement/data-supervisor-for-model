@@ -23,7 +23,8 @@ namespace DataSupervisorForModel
 
         static MongoDBConnectionAndSetup()
         {
-            _client = new MongoClient(System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
+            _client = new MongoClient(
+                System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
 
             _database = _client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["MongoDbName"]);
 
@@ -78,32 +79,41 @@ namespace DataSupervisorForModel
             }
             catch (Exception e)
             {
-                TSErrorCatch.debugWriteOut(e.ToString());
+                //TSErrorCatch.debugWriteOut(e.ToString());
+                AsyncTaskListener.LogMessage(e.ToString());
             }
 
         }
 
         internal static async Task UpsertBardataToMongo(OHLCData barToUpsert)
         {
-            var builder = Builders<OHLCData>.Filter;
+            try
+            {
+                var builder = Builders<OHLCData>.Filter;
 
-            var filterForUpdate = builder.And(builder.Eq("idcontract", barToUpsert.idcontract),
-                    builder.Eq("bartime", barToUpsert.bartime));
+                var filterForUpdate = builder.And(builder.Eq("idcontract", barToUpsert.idcontract),
+                        builder.Eq("bartime", barToUpsert.bartime));
 
-            var update = Builders<OHLCData>.Update
-                        //.SetOnInsert("_id", barToUpsert._id)
-                        .SetOnInsert("idcontract", barToUpsert.idcontract)
-                        .SetOnInsert("bartime", barToUpsert.bartime)
-                        .Set("open", barToUpsert.open)
-                        .Set("high", barToUpsert.high)
-                        .Set("low", barToUpsert.low)
-                        .Set("close", barToUpsert.close)
-                        .Set("volume", barToUpsert.volume)
-                        .Set("errorbar", barToUpsert.errorbar);
+                var update = Builders<OHLCData>.Update
+                            //.SetOnInsert("_id", barToUpsert._id)
+                            .SetOnInsert("idcontract", barToUpsert.idcontract)
+                            .SetOnInsert("bartime", barToUpsert.bartime)
+                            .Set("open", barToUpsert.open)
+                            .Set("high", barToUpsert.high)
+                            .Set("low", barToUpsert.low)
+                            .Set("close", barToUpsert.close)
+                            .Set("volume", barToUpsert.volume)
+                            .Set("errorbar", barToUpsert.errorbar);
 
-            //await _futureBarCollection.ReplaceOne<OHLCData>(filterForUpdate, barToUpsert);
-            await _futureBarCollection.UpdateOneAsync(filterForUpdate, update,
-                    new UpdateOptions { IsUpsert = true });
+                //await _futureBarCollection.ReplaceOne<OHLCData>(filterForUpdate, barToUpsert);
+                await _futureBarCollection.UpdateOneAsync(filterForUpdate, update,
+                        new UpdateOptions { IsUpsert = true });
+            }
+            catch (Exception e)
+            {
+                //TSErrorCatch.debugWriteOut(e.ToString());
+                AsyncTaskListener.LogMessage(e.ToString());
+            }
         }
 
         internal static async Task AddDataMongo(List<OHLCData> barsToAdd)
@@ -156,7 +166,8 @@ namespace DataSupervisorForModel
                 }
                 catch (Exception e)
                 {
-                    TSErrorCatch.debugWriteOut(e.ToString());
+                    //TSErrorCatch.debugWriteOut(e.ToString());
+                    AsyncTaskListener.LogMessage(e.ToString());
                 }
 
                 //await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),

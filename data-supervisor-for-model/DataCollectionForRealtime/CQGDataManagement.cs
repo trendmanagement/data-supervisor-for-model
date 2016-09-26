@@ -65,7 +65,11 @@ namespace DataSupervisorForModel
 
 
                 m_CEL.TimedBarsResolved += new CQG._ICQGCELEvents_TimedBarsResolvedEventHandler(m_CEL_TimedBarResolved);
+
                 m_CEL.TimedBarsAdded += new CQG._ICQGCELEvents_TimedBarsAddedEventHandler(m_CEL_TimedBarsAdded);
+
+                m_CEL.TimedBarsInserted += new CQG._ICQGCELEvents_TimedBarsInsertedEventHandler(m_CEL_TimedBarsInserted);
+
                 m_CEL.TimedBarsUpdated += new CQG._ICQGCELEvents_TimedBarsUpdatedEventHandler(m_CEL_TimedBarsUpdated);
 
                 //m_CEL.IncorrectSymbol += new _ICQGCELEvents_IncorrectSymbolEventHandler(CEL_IncorrectSymbol);
@@ -88,7 +92,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
@@ -112,7 +117,8 @@ namespace DataSupervisorForModel
 #if DEBUG
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
 #endif
 
@@ -208,7 +214,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
 
             dataManagementUtility.closeThread(null, null);
@@ -251,7 +258,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
@@ -320,8 +328,14 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
+        }
+
+        private void m_CEL_TimedBarsAdded(CQG.CQGTimedBars cqg_TimedBarsIn)
+        {
+            AddTimedBars(cqg_TimedBarsIn);
         }
 
         private void AddTimedBars(CQG.CQGTimedBars cqg_TimedBarsIn)
@@ -382,10 +396,7 @@ namespace DataSupervisorForModel
 
                             ohlcData.idcontract = ose.contract.idcontract;
 
-                            if (!firstBarAdded)
-                            {
-                                barsToAdd.Add(ohlcData);
-                            }
+                            
 
                             ohlcData.bartime = cqg_TimedBarsIn[idxToAdd].Timestamp;
 
@@ -498,13 +509,22 @@ namespace DataSupervisorForModel
                             }
 
 
+                            if (!firstBarAdded && !ohlcData.errorbar)
+                            {
+                                barsToAdd.Add(ohlcData);
+                            }
+
                             idxToAdd++;
 
                             if (firstBarAdded)
                             {
                                 firstBarAdded = false;
 
-                                Task t1 = MongoDBConnectionAndSetup.UpsertBardataToMongo(ohlcData);
+                                if (!ohlcData.errorbar)
+                                {
+                                    Task t1 = MongoDBConnectionAndSetup.UpsertBardataToMongo(ohlcData);
+                                }
+
                             }
                         }
 
@@ -525,19 +545,24 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
-        private void m_CEL_TimedBarsAdded(CQG.CQGTimedBars cqg_TimedBarsIn)
+        
+        private void m_CEL_TimedBarsInserted(CQG.CQGTimedBars cqg_TimedBarsIn, int index)
         {
-            AddTimedBars(cqg_TimedBarsIn);
+            UpdateTimedBars(cqg_TimedBarsIn, index, true);
         }
 
-       
         private void m_CEL_TimedBarsUpdated(CQG.CQGTimedBars cqg_TimedBarsIn, int index)
         {
-            //Debug.WriteLine("m_CEL_ExpressionResolved" + cqg_expression.Count);
+            UpdateTimedBars(cqg_TimedBarsIn, index);
+        }
+
+        private void UpdateTimedBars(CQG.CQGTimedBars cqg_TimedBarsIn, int index, bool inserted = false)
+        {
             try
             {
 
@@ -668,7 +693,17 @@ namespace DataSupervisorForModel
                             ose.reachedBarAfterDecisionBar = true;
                         }
 
-                        Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo(ohlcData);
+                        if (!ohlcData.errorbar)
+                        {
+                            if (inserted)
+                            {
+                                Task t1 = MongoDBConnectionAndSetup.UpsertBardataToMongo(ohlcData);
+                            }
+                            else
+                            {
+                                Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo(ohlcData);
+                            }
+                        }
 
                     }
 
@@ -678,7 +713,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
@@ -739,7 +775,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
@@ -817,7 +854,8 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessage(ex.ToString());
             }
         }
 
