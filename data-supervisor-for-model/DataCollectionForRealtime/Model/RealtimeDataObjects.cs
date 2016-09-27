@@ -121,7 +121,7 @@ namespace DataSupervisorForModel
         public bool normalSubscriptionRequest = false;
         //public bool substituteSubscriptionRequest = false;
 
-        public bool setSubscriptionLevel = false;
+        //public bool setSubscriptionLevel = false;
         public bool alreadyRequestedMinuteBars = false;
 
         //public DateTime lastTimeUpdated;

@@ -82,7 +82,7 @@ namespace DataSupervisorForModel
             {
                 ose.alreadyRequestedMinuteBars = false;
 
-                ose.setSubscriptionLevel = false;
+                //ose.setSubscriptionLevel = false;
             }
 
             //continueSubscriptionRequest = false;
@@ -228,7 +228,24 @@ namespace DataSupervisorForModel
 
                             //DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel = false;
 
-                            if (!DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel)
+                            //if (!DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel)
+                            //{
+                            //    Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+
+                            //    string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
+                            //            + " : " + count + " OF " +
+                            //            DataCollectionLibrary.optionSpreadExpressionList.Count;
+
+                            //    AsyncTaskListener.LogMessageAsync(message);
+
+                            //    AsyncTaskListener.StatusUpdateAsync(
+                            //        message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                            //    m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
+                            //}
+
+                            if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
+                                && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
                             {
                                 Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
@@ -241,12 +258,6 @@ namespace DataSupervisorForModel
                                 AsyncTaskListener.StatusUpdateAsync(
                                     message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
-                                m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
-                            }
-
-                            if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
-                                && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
-                            {
                                 requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
                             }
                         }
@@ -777,67 +788,67 @@ namespace DataSupervisorForModel
             }
         }
 
-        private void m_CEL_InstrumentSubscribed(String symbol, CQGInstrument cqgInstrument)
-        {
-            try
-            {
-                //AsyncTaskListener.StatusUpdate("CQG GOOD", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
+        //private void m_CEL_InstrumentSubscribed(String symbol, CQGInstrument cqgInstrument)
+        //{
+        //    try
+        //    {
+        //        //AsyncTaskListener.StatusUpdate("CQG GOOD", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
 
 
-                if (DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol.ContainsKey(symbol))
-                {
+        //        if (DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol.ContainsKey(symbol))
+        //        {
 
-                    OptionSpreadExpression optionSpreadExpression =
-                        DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol[symbol];
+        //            OptionSpreadExpression optionSpreadExpression =
+        //                DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol[symbol];
 
-                    //while (expressionCounter < optionSpreadExpressionList.Count)
-                    //{
-                    if (optionSpreadExpression.continueUpdating
-                        //&& symbol.CompareTo(optionSpreadExpressionList[expressionCounter].cqgSymbol) == 0
-                        && !optionSpreadExpression.setSubscriptionLevel)
-                    {
-                        optionSpreadExpression.setSubscriptionLevel = true;
+        //            //while (expressionCounter < optionSpreadExpressionList.Count)
+        //            //{
+        //            if (optionSpreadExpression.continueUpdating
+        //                //&& symbol.CompareTo(optionSpreadExpressionList[expressionCounter].cqgSymbol) == 0
+        //                && !optionSpreadExpression.setSubscriptionLevel)
+        //            {
+        //                optionSpreadExpression.setSubscriptionLevel = true;
 
-                        optionSpreadExpression.cqgInstrument = cqgInstrument;
-
-
-                        //int idx = expressionCounter;
-
-                        //optionSpreadExpressionListHashTableIdx.AddOrUpdate(
-                        //        cqgInstrument.FullName, idx,
-                        //        (oldKey, oldValue) => idx);
-
-                        DataCollectionLibrary.optionSpreadExpressionHashTable_keyFullName.AddOrUpdate(
-                                cqgInstrument.FullName, optionSpreadExpression,
-                                (oldKey, oldValue) => optionSpreadExpression);
-
-                        //if (cqgInstrument.FullName.CompareTo("P.US.EU6J1511100") == 0)
-                        //{
-                        //    Console.WriteLine(cqgInstrument.FullName);
-                        //}
-
-                        fillPricesFromQuote(optionSpreadExpression,
-                            optionSpreadExpression.cqgInstrument.Quotes);
+        //                optionSpreadExpression.cqgInstrument = cqgInstrument;
 
 
+        //                //int idx = expressionCounter;
 
-                        ///<summary>below sets the subscription level of the CQG data</summary>
-                        optionSpreadExpression.cqgInstrument.DataSubscriptionLevel
-                            = eDataSubscriptionLevel.dsQuotes;
+        //                //optionSpreadExpressionListHashTableIdx.AddOrUpdate(
+        //                //        cqgInstrument.FullName, idx,
+        //                //        (oldKey, oldValue) => idx);
+
+        //                DataCollectionLibrary.optionSpreadExpressionHashTable_keyFullName.AddOrUpdate(
+        //                        cqgInstrument.FullName, optionSpreadExpression,
+        //                        (oldKey, oldValue) => optionSpreadExpression);
+
+        //                //if (cqgInstrument.FullName.CompareTo("P.US.EU6J1511100") == 0)
+        //                //{
+        //                //    Console.WriteLine(cqgInstrument.FullName);
+        //                //}
+
+        //                fillPricesFromQuote(optionSpreadExpression,
+        //                    optionSpreadExpression.cqgInstrument.Quotes);
 
 
-                    }
 
-                    //expressionCounter++;
-                }
+        //                ///<summary>below sets the subscription level of the CQG data</summary>
+        //                optionSpreadExpression.cqgInstrument.DataSubscriptionLevel
+        //                    = eDataSubscriptionLevel.dsQuotes;
 
-            }
-            catch (Exception ex)
-            {
-                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessageAsync(ex.ToString());
-            }
-        }
+
+        //            }
+
+        //            //expressionCounter++;
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+        //        AsyncTaskListener.LogMessageAsync(ex.ToString());
+        //    }
+        //}
 
         private void m_CEL_InstrumentChanged(CQGInstrument cqgInstrument,
                                  CQGQuotes quotes,
