@@ -80,7 +80,9 @@ namespace DataSupervisorForModel
             catch (Exception e)
             {
                 //TSErrorCatch.debugWriteOut(e.ToString());
-                AsyncTaskListener.LogMessage(e.ToString());
+                AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                AsyncTaskListener.UpdateCQGDataManagementAsync();
             }
 
         }
@@ -112,69 +114,28 @@ namespace DataSupervisorForModel
             catch (Exception e)
             {
                 //TSErrorCatch.debugWriteOut(e.ToString());
-                AsyncTaskListener.LogMessage(e.ToString());
+                AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                AsyncTaskListener.UpdateCQGDataManagementAsync();
             }
         }
 
         internal static async Task AddDataMongo(List<OHLCData> barsToAdd)
         {
-
-            //foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            try
             {
-                //Mongo_OptionSpreadExpression osefdb = (Mongo_OptionSpreadExpression)ose;
 
-
-                //Mongo_OptionSpreadExpression mongoOse = (Mongo_OptionSpreadExpression)ose;
-
-                try
-                {
-                    //var filter = Builders<OHLCData>.Filter.Eq("idcontract", ose.contract.idcontract);
-
-                    await _futureBarCollection.InsertManyAsync(barsToAdd);
-
-                    //Mapper.Initialize(cfg => cfg.CreateMap<OptionSpreadExpression, Mongo_OptionSpreadExpression>());
-
-                    //Mongo_OptionSpreadExpression mongoOse = Mapper.Map<Mongo_OptionSpreadExpression>(ose);
-
-
-                    //string json = Newtonsoft.Json.JsonConvert.SerializeObject(mongoOse);
-                    //Bsondo
-
-                    //MongoDB.Bson.BsonDocument document
-                    //    = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(json);
-
-                    //var collection = _database.GetCollection<Mongo_OptionSpreadExpression>(mongoDataCollection);
-                    //await collection.InsertOneAsync(mongoOse);
-
-                    //var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Where(x => x._id == mongoOse.contract.idcontract);
-
-                    //var update = Builders<Mongo_OptionSpreadExpression>.Update.Push("futureBarData", mongoOse.futureBarData[indexToAdd]);
-
-                    //var filter = Builders<Mongo_OptionSpreadExpression>.Filter.Where(x => x._id == mongoOse.contract.idcontract);
-
-                    //var update = Builders<Mongo_OptionSpreadExpression>.Update..Eq("_id", mongoOse.contract.idcontract);
-
-                    //var update = Builders<Mongo_OptionSpreadExpression>.Update
-                    //    .Set("futureBarData", mongoOse.futureBarData);
-
-
-                    //await _optionSpreadExpressionCollection.ReplaceOneAsync(filter, mongoOse);
-
-                    //await _optionSpreadExpressionCollection.UpdateOneAsync(filter, update);
-
-
-                }
-                catch (Exception e)
-                {
-                    //TSErrorCatch.debugWriteOut(e.ToString());
-                    AsyncTaskListener.LogMessage(e.ToString());
-                }
-
-                //await collection.UpdateOneAsync(filter,Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
-                //    new UpdateOptions { IsUpsert = true });
-
+                await _futureBarCollection.InsertManyAsync(barsToAdd);
 
             }
+            catch (Exception e)
+            {
+                //TSErrorCatch.debugWriteOut(e.ToString());
+                AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                AsyncTaskListener.UpdateCQGDataManagementAsync();
+            }
+            
         }
 
 
@@ -216,59 +177,46 @@ namespace DataSupervisorForModel
 
             OptionSpreadExpression ose = new OptionSpreadExpression();
 
-            var filter = Builders<Contract>.Filter.Eq("idcontract", contract.idcontract);
+            try
+            { 
+                var filter = Builders<Contract>.Filter.Eq("idcontract", contract.idcontract);
 
-            Contract mongoContract = _contractCollection.Find(filter).SingleOrDefault();
+                Contract mongoContract = _contractCollection.Find(filter).SingleOrDefault();
 
-            ose.contract = contract;
+                ose.contract = contract;
 
-            if (mongoContract == null ||
-                mongoContract.previousDateTimeBoundaryStart.CompareTo(contract.previousDateTimeBoundaryStart) != 0)
-            {
+                if (mongoContract == null ||
+                    mongoContract.previousDateTimeBoundaryStart.CompareTo(contract.previousDateTimeBoundaryStart) != 0)
+                {
                 
 
-                _contractCollection.ReplaceOne(filter, contract, new UpdateOptions { IsUpsert = true });
+                    _contractCollection.ReplaceOne(filter, contract, new UpdateOptions { IsUpsert = true });
 
-                //var builder = Builders<OHLCData>.Filter;
+                    //var builder = Builders<OHLCData>.Filter;
 
-                //var filterForBars = builder.Eq("idcontract", contract.idcontract) & builder.AnyGte("bartime", contract.previousDateTimeBoundaryStart);
+                    //var filterForBars = builder.Eq("idcontract", contract.idcontract) & builder.AnyGte("bartime", contract.previousDateTimeBoundaryStart);
 
-                ////_futureBarCollection.DeleteMany(filterForBars);
+                    ////_futureBarCollection.DeleteMany(filterForBars);
 
 
 
-                //ose.futureBarData = _futureBarCollection.Find(filterForBars).ToList<OHLCData>();
+                    //ose.futureBarData = _futureBarCollection.Find(filterForBars).ToList<OHLCData>();
+                }
+
+                ose.normalSubscriptionRequest = true;
+
+                ose.instrument = instrument;
+
             }
-            //else
-            //{
-            //    //var builder = Builders<OHLCData>.Filter;
+            catch (Exception e)
+            {
+                //TSErrorCatch.debugWriteOut(e.ToString());
+                //AsyncTaskListener.LogMessage(e.ToString());
 
-            //    //var filterForBars = builder.Eq("idcontract", contract.idcontract) & builder.AnyGte("bartime", contract.previousDateTimeBoundaryStart);
+                //cQGDataManagement.shutDownCQGConn();
 
-            //    ////await collection.UpdateOneAsync(filter, Builders<Mongo_OptionSpreadExpression>.Update.Set("futureBarData", mongoOse.futureBarData),
-            //    ////    new UpdateOptions { IsUpsert = true });
-
-            //    //ose.futureBarData = _futureBarCollection.Find(filterForBars).ToList<OHLCData>();
-
-            //}
-
-            //var builder = Builders<OHLCData>.Filter;
-
-            //var filterForBars = builder.And(builder.Eq("idcontract", contract.idcontract) ,
-            //        builder.Gte("bartime", contract.previousDateTimeBoundaryStart));
-
-            ////_futureBarCollection.DeleteMany(filterForBars);
-
-
-
-            //ose.futureBarData = _futureBarCollection.Find(filterForBars).ToList<OHLCData>();
-
-
-            //fill the following 2 variables for normal functioning
-
-            ose.normalSubscriptionRequest = true;
-
-            ose.instrument = instrument;
+                return null;
+            }
 
             return ose;
 

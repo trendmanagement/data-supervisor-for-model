@@ -146,9 +146,10 @@ namespace DataSupervisorForModel
             {
                 IQueryable<tblinstrument> instrumentQuery =
                     from inst in Context.tblinstruments
-                    where inst.optionenabled == 2
+                    where ( inst.optionenabled == 2
                     || inst.optionenabled == 4
-                    || inst.optionenabled == 8
+                    || inst.optionenabled == 8 )
+                    && inst.idinstrument != 1022
                     select inst;
 
                 //instrumentQuery.ToList();

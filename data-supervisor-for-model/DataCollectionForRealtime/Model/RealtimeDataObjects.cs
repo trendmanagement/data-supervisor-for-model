@@ -88,34 +88,16 @@ namespace DataSupervisorForModel
     
     public class OptionSpreadExpression
     {
-        //[BsonRepresentation(BsonType.ObjectId)]
-        //public ObjectId Id { get; set; }
-
-        //[BsonId]
-        //[BsonRepresentation(BsonType.Int64)]
-        //public long _id { get; set; }
 
         public Contract contract { get; set; }
 
+        public bool filledContractDisplayName = false;
+
         /// <summary>
-        /// used to mark the start of the future bar data for collection
+        /// used to keep track of last index added to contract
         /// </summary>
-        //[BsonRepresentation(BsonType.DateTime)]
-        //[BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        //public DateTime previousDateTimeBoundaryStart { get; set; }
-
-        //[BsonRepresentation(BsonType.Array)]
-        //public IList<OHLCData> futureBarData { get; set; }
-
-
-
         public int lastIdxToAdd = 0;
 
-
-    //}
-
-    //public class OptionSpreadExpression : Mongo_OptionSpreadExpression
-    //{
         public Instrument instrument { get; set; }
 
         public CQG.CQGInstrument cqgInstrument;
@@ -125,19 +107,19 @@ namespace DataSupervisorForModel
 
         public DateTime CQGBarQueryStart;
 
-        public double ask;
-        public bool askFilled;
+        //public double ask;
+        //public bool askFilled;
 
-        public double bid;
-        public bool bidFilled;
+        //public double bid;
+        //public bool bidFilled;
 
-        public double yesterdaySettlement;
-        public bool yesterdaySettlementFilled;
+        //public double yesterdaySettlement;
+        //public bool yesterdaySettlementFilled;
 
         public bool continueUpdating = true;
 
         public bool normalSubscriptionRequest = false;
-        public bool substituteSubscriptionRequest = false;
+        //public bool substituteSubscriptionRequest = false;
 
         public bool setSubscriptionLevel = false;
         public bool alreadyRequestedMinuteBars = false;
@@ -164,9 +146,6 @@ namespace DataSupervisorForModel
         public bool settlementFilled;
         public DateTime settlementDateTime;
         public bool settlementIsCurrentDay;
-
-        //public bool reached1MinAfterDecisionBarUsedForSnapshot = false;
-
     }
 
     //public class OptionSpreadExpression

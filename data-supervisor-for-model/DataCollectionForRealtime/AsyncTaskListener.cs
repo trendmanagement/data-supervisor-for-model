@@ -40,13 +40,16 @@ namespace DataSupervisorForModel
         public delegate void UpdateExpressionGridDelegate(OptionSpreadExpression ose = null);
         public static event UpdateExpressionGridDelegate UpdateExpressionGrid;
 
+        public delegate void UpdateCQGDataManagementDelegate();
+        public static event UpdateCQGDataManagementDelegate UpdateCQGDataManagement;
+
         // The period of RPS calculation and reporting (in seconds)
         static TimeSpan period = new TimeSpan(0, 0, 1);
 
         static DateTime notchTime;
         static int notchCount;
 
-        public static void Init(string msg = null)
+        public static void InitAsync(string msg = null)
         {
             notchTime = DateTime.Now;
             notchCount = 0;
@@ -58,7 +61,7 @@ namespace DataSupervisorForModel
             }
         }
 
-        public static void Update(int count = -1, string msg = null)
+        public static void UpdateAsync(int count = -1, string msg = null)
         {
             if (count != -1)
             {
@@ -89,29 +92,36 @@ namespace DataSupervisorForModel
             }
         }
 
-        public static void LogMessage(string msg)
+        public static void LogMessageAsync(string msg)
         {
             // Update text box
             Updated.Invoke(msg);
         }
 
-        public static void LogMessageFormat(string msgPat, params object[] args)
+        public static void LogMessageFormatAsync(string msgPat, params object[] args)
         {
             // Update text box
             Updated.Invoke(string.Format(msgPat, args));
         }
 
-        public static void StatusUpdate(string msg, 
+        public static void StatusUpdateAsync(string msg, 
             STATUS_FORMAT statusFormat, STATUS_TYPE connStatus)
         {
             // Update status strip
             UpdatedStatus.Invoke(msg, statusFormat, connStatus);
         }
 
-        public static void ExpressionListUpdate(OptionSpreadExpression ose)
+        public static void ExpressionListUpdateAsync(OptionSpreadExpression ose)
         {
             // Update status strip
             UpdateExpressionGrid.Invoke(ose);
+        }
+
+        
+        public static void UpdateCQGDataManagementAsync()
+        {
+            // Update status strip
+            UpdateCQGDataManagement.Invoke();
         }
     }
 }

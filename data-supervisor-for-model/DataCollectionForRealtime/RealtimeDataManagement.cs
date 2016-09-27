@@ -22,6 +22,8 @@ namespace DataSupervisorForModel
 
         private static System.Timers.Timer aTimer;
 
+        private string startupException = null;
+
         public RealtimeDataManagement()
         {
             InitializeComponent();
@@ -48,7 +50,7 @@ namespace DataSupervisorForModel
            
         }
 
-        private void SetupInstrumentAndContractListToCollect()
+        private bool SetupInstrumentAndContractListToCollect()
         {
 
             //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
@@ -99,6 +101,13 @@ namespace DataSupervisorForModel
                     OptionSpreadExpression ose = 
                         MongoDBConnectionAndSetup.GetContractFromMongo(contract, instrument);
 
+                    if(ose == null)
+                    {
+                        startupException = "Network Error";
+
+                        return false;
+                    }
+
                     ose.row = row++;
 
 
@@ -106,10 +115,8 @@ namespace DataSupervisorForModel
 
                     DataCollectionLibrary.optionSpreadExpressionHashTable_keycontractId.Add(contract.idcontract, ose);
 
-                    //break;
                 }
 
-                //break;
             }
 
             expressionListDataGrid.RowCount = row;
@@ -120,8 +127,8 @@ namespace DataSupervisorForModel
 
             //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);
 
-            
 
+            return true;
         }
 
         private void SetupMongoUpdateTimerThread()
@@ -153,64 +160,6 @@ namespace DataSupervisorForModel
             //Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
         }
 
-        //private void SetupExpressionList()
-        //{
-        //    //KeyValuePair<long,List<Contract>>
-        //    foreach (KeyValuePair<long, List<Contract>> contractHashEntry in cqgDataManagement.contractHashTableByInstId)
-        //    {
-        //        foreach(Contract contract in contractHashEntry.Value)
-        //        {
-        //            OptionSpreadExpression ose = new OptionSpreadExpression();
-
-        //            ose.contract = contract;
-        //            ose.instrument = cqgDataManagement.instrumentHashTable[contract.idinstrument];
-
-        //            cqgDataManagement.optionSpreadExpressionList.Add(ose);
-        //        }
-        //    }
-        //    //cqgDataManagement.optionSpreadExpressionList
-        //}
-
-        //private void testLoadIn()
-        //{
-        //    //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
-
-        //    Mongo_OptionSpreadExpression osefdb = new Mongo_OptionSpreadExpression();
-
-
-        //    osefdb.contract.cqgsymbol = "F.EPU16";
-        //    //osefdb.instrument = DataCollectionLibrary.instrumentHashTable[11];
-
-        //    //mongoDBConnectionAndSetup.MongoDataCollection.ReplaceOne(
-        //    //    item => item.cqgSymbol == osefdb.cqgSymbol,
-        //    //    osefdb,
-        //    //    new UpdateOptions { IsUpsert = true });
-
-        //    MongoDBConnectionAndSetup.MongoDataCollection.InsertOne(osefdb);
-
-
-        //}
-
-        //private void testGetData()
-        //{
-        //    //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
-
-        //    var filterBuilder = Builders<Mongo_OptionSpreadExpression>.Filter;
-        //    var filter = filterBuilder.Ne("Id", "barf");
-
-        //    var testExpression = MongoDBConnectionAndSetup.MongoDataCollection.Find(filter).SingleOrDefault();
-
-        //    Console.WriteLine(testExpression.contract.cqgsymbol);
-
-
-        //}
-
-        private void btnCallAllInstruments_Click(object sender, EventArgs e)
-        {
-            cqgDataManagement.sendSubscribeRequest(false);
-        }
-
-
         void StartListerning()
         {
             int port = 8005;
@@ -225,7 +174,7 @@ namespace DataSupervisorForModel
 
                 listenSocket.Listen(10);
 
-                AsyncTaskListener.LogMessage("Start listerning");
+                AsyncTaskListener.LogMessageAsync("Start listerning");
 
                 while (true)
                 {
@@ -241,7 +190,7 @@ namespace DataSupervisorForModel
                     }
                     while (handler.Available > 0);
 
-                    AsyncTaskListener.LogMessage(DateTime.Now.ToShortTimeString() + ": " + builder.ToString());
+                    AsyncTaskListener.LogMessageAsync(DateTime.Now.ToShortTimeString() + ": " + builder.ToString());
 
                     string message = "Your query is successfully added";
                     data = Encoding.Unicode.GetBytes(message);
@@ -253,7 +202,7 @@ namespace DataSupervisorForModel
             }
             catch (Exception ex)
             {
-                AsyncTaskListener.LogMessage("Error: " + ex.Message);
+                AsyncTaskListener.LogMessageAsync("Error: " + ex.Message);
             }
         }
 
@@ -319,11 +268,11 @@ namespace DataSupervisorForModel
                             ConnectionStatus.BackColor = backColor;
                             break;
 
-                        case STATUS_TYPE.DATA_STATUS:
-                            DataStatus.Text = msg;
-                            DataStatus.ForeColor = ForeColor;
-                            DataStatus.BackColor = backColor;
-                            break;
+                        //case STATUS_TYPE.DATA_STATUS:
+                        //    DataStatus.Text = msg;
+                        //    DataStatus.ForeColor = ForeColor;
+                        //    DataStatus.BackColor = backColor;
+                        //    break;
 
                         case STATUS_TYPE.DATA_SUBSCRIPTION_STATUS:
                             StatusSubscribeData.Text = msg;
@@ -343,7 +292,7 @@ namespace DataSupervisorForModel
             {
                 // User closed the form
                 //Console.Write("test");
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
 
             //*******************
@@ -355,10 +304,16 @@ namespace DataSupervisorForModel
             Action action = new Action(
                 () =>
                 {
+                    if (!ose.filledContractDisplayName)
+                    {
+                        ose.filledContractDisplayName = true;
 
-                    expressionListDataGrid
-                        .Rows[ose.row].HeaderCell.Value
-                        = ose.contract.contractname;
+                        expressionListDataGrid
+                            .Rows[ose.row].HeaderCell.Value
+                            =
+                            ose.contract.idcontract + " - "
+                            + ose.contract.contractname;
+                    }
 
                     if (ose.futureTimedBars != null 
                         && ose.futureTimedBars.Count > 0
@@ -408,30 +363,32 @@ namespace DataSupervisorForModel
 
         private void RealtimeDataManagement_Load(object sender, EventArgs e)
         {
+            if (startupException != null)
+            {
+                AsyncTaskListener.LogMessageAsync(startupException);
+            }
+
             foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
             {
-                AsyncTaskListener.ExpressionListUpdate(ose);
+                AsyncTaskListener.ExpressionListUpdateAsync(ose);
             }
 
             cqgDataManagement = new CQGDataManagement(this);
+
+            cqgDataManagement.sendSubscribeRequest(false);
         }
+
+        private void btnCallAllInstruments_Click(object sender, EventArgs e)
+        {
+            cqgDataManagement.sendSubscribeRequest(false);
+        }       
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
         {
-            //Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
+            cqgDataManagement.resetCQGConn();
 
-            //Console.WriteLine(cqgDataManagement.instrumentList[0].description);
-
-
-
-            //AsyncTaskListener.LogMessage("test");
-
-            //testLoadIn();
-
-            //testGetData();
-
-            //mongoDBConnectionAndSetup.createDoc();
-            //mongoDBConnectionAndSetup.getDocument();
+            //cqgDataManagement.sendSubscribeRequest(false);
         }
+
     }
 }

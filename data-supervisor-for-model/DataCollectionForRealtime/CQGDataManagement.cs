@@ -14,9 +14,13 @@ namespace DataSupervisorForModel
     {
         internal CQGDataManagement(RealtimeDataManagement realtimeDataManagement)
         {
+            AsyncTaskListener.UpdateCQGDataManagement += AsyncTaskListener_UpdateCQGDataManagement;
+
             this.realtimeDataManagement = realtimeDataManagement;
 
-            ThreadPool.QueueUserWorkItem(new WaitCallback(initializeCQGAndCallbacks));
+            initializeCQGAndCallbacks(null);
+
+            //ThreadPool.QueueUserWorkItem(new WaitCallback(initializeCQGAndCallbacks));
 
             //AsyncTaskListener.LogMessage("test");
         }
@@ -24,14 +28,17 @@ namespace DataSupervisorForModel
         private DataManagementUtility dataManagementUtility = new DataManagementUtility();
 
         private Thread subscriptionThread;
-        private bool subscriptionThreadShouldStop = false;
+        private bool continueSubscriptionRequest = true;
         private const int SUBSCRIPTION_TIMEDELAY_CONSTANT = 125;
 
         private RealtimeDataManagement realtimeDataManagement;
 
         private CQG.CQGCEL m_CEL;
 
-
+        internal void AsyncTaskListener_UpdateCQGDataManagement()
+        {
+            shutDownCQGConn();
+        }
 
         internal void connectCQG()
         {
@@ -43,13 +50,43 @@ namespace DataSupervisorForModel
 
         internal void shutDownCQGConn()
         {
+            continueSubscriptionRequest = false;
+
             if (m_CEL != null)
             {
                 if (m_CEL.IsStarted)
+                {
                     m_CEL.RemoveAllInstruments();
+                }
 
                 //m_CEL.Shutdown();
             }
+        }
+
+        internal void resetCQGConn()
+        {
+            shutDownCQGConn();
+
+            if (m_CEL != null)
+            {
+                if (!m_CEL.IsStarted)
+                {
+                    //ThreadPool.QueueUserWorkItem(new WaitCallback(initializeCQGAndCallbacks));
+                    initializeCQGAndCallbacks(null);  
+                }
+            }
+
+            //while (continueSubscriptionRequest && i < DataCollectionLibrary.optionSpreadExpressionList.Count)
+
+            foreach(OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            {
+                ose.alreadyRequestedMinuteBars = false;
+
+                ose.setSubscriptionLevel = false;
+            }
+
+            //continueSubscriptionRequest = false;
+
         }
 
         internal void initializeCQGAndCallbacks(Object obj)
@@ -60,7 +97,9 @@ namespace DataSupervisorForModel
                 m_CEL = new CQG.CQGCEL();
 
                 m_CEL_CELDataConnectionChg(CQG.eConnectionStatus.csConnectionDown);
+
                 //(callsFromCQG,&CallsFromCQG.m_CEL_CELDataConnectionChg);
+
                 m_CEL.DataConnectionStatusChanged += new CQG._ICQGCELEvents_DataConnectionStatusChangedEventHandler(m_CEL_CELDataConnectionChg);
 
 
@@ -93,13 +132,15 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
         private void m_CEL_DataError(System.Object cqg_error, System.String error_description)
         {
-            AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
+            AsyncTaskListener.LogMessageAsync("CQG ERROR");
+
+            //AsyncTaskListener.StatusUpdate("CQG ERROR", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
         }
 
         public void sendSubscribeRequest(bool sendOnlyUnsubscribed)
@@ -109,6 +150,8 @@ namespace DataSupervisorForModel
             try
 #endif
             {
+                continueSubscriptionRequest = true;
+
                 subscriptionThread = new Thread(new ParameterizedThreadStart(sendSubscribeRequestRun));
                 subscriptionThread.IsBackground = true;
                 subscriptionThread.Start(sendOnlyUnsubscribed);
@@ -118,7 +161,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
 #endif
 
@@ -133,13 +176,15 @@ namespace DataSupervisorForModel
                 //m_CEL.RemoveAllTimedBars();
                 //Thread.Sleep(3000);
 
+                Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+
                 if (m_CEL.IsStarted)
                 {
                     bool sendOnlyUnsubscribed = (bool)obj;
 
                     int i = 0;
 
-                    while (!subscriptionThreadShouldStop && i < DataCollectionLibrary.optionSpreadExpressionList.Count)
+                    while (continueSubscriptionRequest && i < DataCollectionLibrary.optionSpreadExpressionList.Count)
                     {
                         MongoDBConnectionAndSetup.GetFutureBarsFromMongo(DataCollectionLibrary.optionSpreadExpressionList[i]);
 
@@ -147,56 +192,60 @@ namespace DataSupervisorForModel
 
                         //TSErrorCatch.debugWriteOut("SUBSCRIBE " + optionSpreadExpressionList[i].cqgSymbol);
 
-                        if (sendOnlyUnsubscribed)
+                        //if (sendOnlyUnsubscribed)
+                        //{
+
+                        //    if (!DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel)
+                        //    {
+                        //        Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+
+                        //        string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
+                        //            + " : " + count + " OF " +
+                        //            DataCollectionLibrary.optionSpreadExpressionList.Count;
+
+                        //        AsyncTaskListener.LogMessage(message);
+
+                        //        AsyncTaskListener.StatusUpdate(
+                        //            message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                        //        m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
+
+
+                        //    }
+
+                        //    if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
+                        //        && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
+                        //    {
+                        //        requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
+                        //    }
+
+                        //}
+                        //else
                         {
+                            //DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars = false;
+
+
+
+                            //DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel = false;
 
                             if (!DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel)
                             {
                                 Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
                                 string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
-                                    + " : " + count + " OF " +
-                                    DataCollectionLibrary.optionSpreadExpressionList.Count;
+                                        + " : " + count + " OF " +
+                                        DataCollectionLibrary.optionSpreadExpressionList.Count;
 
-                                AsyncTaskListener.LogMessage(message);
+                                AsyncTaskListener.LogMessageAsync(message);
 
-                                AsyncTaskListener.StatusUpdate(
+                                AsyncTaskListener.StatusUpdateAsync(
                                     message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
                                 m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
-
-
                             }
 
                             if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
                                 && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
-                            {
-                                requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
-                            }
-
-                        }
-                        else
-                        {
-                            DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars = false;
-
-
-
-                            DataCollectionLibrary.optionSpreadExpressionList[i].setSubscriptionLevel = false;
-
-                            Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
-
-                            string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
-                                    + " : " + count + " OF " +
-                                    DataCollectionLibrary.optionSpreadExpressionList.Count;
-
-                            AsyncTaskListener.LogMessage(message);
-
-                            AsyncTaskListener.StatusUpdate(
-                                message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
-
-                            m_CEL.NewInstrument(DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol);
-
-                            if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest)
                             {
                                 requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
                             }
@@ -207,7 +256,7 @@ namespace DataSupervisorForModel
 
                     Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
-                    AsyncTaskListener.StatusUpdate(
+                    AsyncTaskListener.StatusUpdateAsync(
                                 "", STATUS_FORMAT.DEFAULT, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
                 }
@@ -215,7 +264,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
 
             dataManagementUtility.closeThread(null, null);
@@ -236,6 +285,16 @@ namespace DataSupervisorForModel
 
                 timedBarsRequest.Continuation = CQG.eTimeSeriesContinuationType.tsctNoContinuation;
                 //do not want continuation bars
+
+                DateTime currentTime = m_CEL.Environment.LineTime;
+                
+
+                if (optionSpreadExpression.CQGBarQueryStart.CompareTo(
+                    new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, currentTime.Minute, 0))
+                    >= 0)
+                {
+                    optionSpreadExpression.CQGBarQueryStart = optionSpreadExpression.CQGBarQueryStart.AddMinutes(-1);
+                }
 
                 DateTime rangeStart = optionSpreadExpression.CQGBarQueryStart;
 
@@ -259,7 +318,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
@@ -309,7 +368,7 @@ namespace DataSupervisorForModel
                 connStatusShortString.Append("WAITING");
             }
 
-            AsyncTaskListener.StatusUpdate(connStatusShortString.ToString(), statusFormat, STATUS_TYPE.CQG_CONNECTION_STATUS);
+            AsyncTaskListener.StatusUpdateAsync(connStatusShortString.ToString(), statusFormat, STATUS_TYPE.CQG_CONNECTION_STATUS);
 
         }
 
@@ -323,13 +382,13 @@ namespace DataSupervisorForModel
                 }
                 else
                 {
-                    AsyncTaskListener.LogMessage(cqg_error.Description);
+                    AsyncTaskListener.LogMessageAsync(cqg_error.Description);
                 }
             }
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
@@ -537,7 +596,7 @@ namespace DataSupervisorForModel
                                         cqg_TimedBarsIn.EndTimestamp;
 
 
-                        AsyncTaskListener.ExpressionListUpdate(ose);
+                        AsyncTaskListener.ExpressionListUpdateAsync(ose);
                     }
 
                 }
@@ -546,7 +605,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
@@ -714,7 +773,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
@@ -722,7 +781,7 @@ namespace DataSupervisorForModel
         {
             try
             {
-                AsyncTaskListener.StatusUpdate("CQG GOOD", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
+                //AsyncTaskListener.StatusUpdate("CQG GOOD", STATUS_FORMAT.ALARM, STATUS_TYPE.DATA_STATUS);
 
 
                 if (DataCollectionLibrary.optionSpreadExpressionHashTable_keySymbol.ContainsKey(symbol))
@@ -776,7 +835,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
@@ -855,7 +914,7 @@ namespace DataSupervisorForModel
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
-                AsyncTaskListener.LogMessage(ex.ToString());
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
         }
 
