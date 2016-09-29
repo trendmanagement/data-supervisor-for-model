@@ -176,7 +176,7 @@ namespace DataSupervisorForModel
                 //m_CEL.RemoveAllTimedBars();
                 //Thread.Sleep(3000);
 
-                Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+                Thread.Sleep(3000);
 
                 if (m_CEL.IsStarted)
                 {

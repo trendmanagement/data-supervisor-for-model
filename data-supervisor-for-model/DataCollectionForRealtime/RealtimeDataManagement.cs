@@ -11,6 +11,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace DataSupervisorForModel
 {
@@ -22,7 +23,7 @@ namespace DataSupervisorForModel
 
         private static System.Timers.Timer aTimer;
 
-        private string startupException = null;
+        //private string startupException = null;
 
         public RealtimeDataManagement()
         {
@@ -36,18 +37,29 @@ namespace DataSupervisorForModel
 
             AsyncTaskListener.UpdateExpressionGrid += AsyncTaskListener_ExpressionListUpdate;
 
-
+            SetupContractSummaryGridList();
 
             //DataCollectionLibrary DataCollectionLibrary = new DataCollectionLibrary();
 
             //mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
 
 
-            SetupInstrumentAndContractListToCollect();
+
 
             //SetupMongoUpdateTimerThread();
 
-           
+
+        }
+
+        private void SetupContractSummaryGridList()
+        {
+            expressionListDataGrid.DataSource = DataCollectionLibrary.contractSummaryGridList;
+
+            DataCollectionLibrary.contractSummaryGridList.Columns.Add("Contract");
+            DataCollectionLibrary.contractSummaryGridList.Columns.Add("Last Update Time");
+
+            expressionListDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+
         }
 
         private bool SetupInstrumentAndContractListToCollect()
@@ -103,7 +115,7 @@ namespace DataSupervisorForModel
 
                     if(ose == null)
                     {
-                        startupException = "Network Error";
+                        //startupException = "Network Error";
 
                         return false;
                     }
@@ -119,11 +131,13 @@ namespace DataSupervisorForModel
 
             }
 
-            expressionListDataGrid.RowCount = row;
-            expressionListDataGrid.ColumnCount = 1;
+            //DataCollectionLibrary.contractSummaryGridList.
+
+            //expressionListDataGrid.RowCount = row;
+            //expressionListDataGrid.ColumnCount = 1;
 
             //expressionListDataGrid.hea.Columns[-1].Width = 100;
-            expressionListDataGrid.Columns[0].Width = 150;
+            //expressionListDataGrid.Columns[0].Width = 150;
 
             //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);
 
@@ -304,24 +318,32 @@ namespace DataSupervisorForModel
             Action action = new Action(
                 () =>
                 {
+                    //if((ose.row + 1) > expressionListDataGrid.RowCount)
+                    //{
+                    //    expressionListDataGrid.RowCount = (ose.row + 1);
+                    //}
+
+                    if (ose.row + 1 > DataCollectionLibrary.contractSummaryGridList.Rows.Count)
+                    {
+                        DataCollectionLibrary.contractSummaryGridList.Rows.Add();
+                        
+                    }
+
                     if (!ose.filledContractDisplayName)
                     {
                         ose.filledContractDisplayName = true;
 
-                        expressionListDataGrid
-                            .Rows[ose.row].HeaderCell.Value
-                            =
+                        DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][0] =
                             ose.contract.idcontract + " - "
                             + ose.contract.contractname;
                     }
 
-                    if (ose.futureTimedBars != null 
+                    if (ose.futureTimedBars != null
                         && ose.futureTimedBars.Count > 0
                         && ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp != null)
                     {
-                        expressionListDataGrid
-                            .Rows[ose.row].Cells[0].Value
-                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp;
+                        DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][1] =
+                            ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp;
                     }
 
                     /*expressionListDataGrid
@@ -363,19 +385,21 @@ namespace DataSupervisorForModel
 
         private void RealtimeDataManagement_Load(object sender, EventArgs e)
         {
-            if (startupException != null)
-            {
-                AsyncTaskListener.LogMessageAsync(startupException);
-            }
+            //SetupInstrumentAndContractListToCollect();
 
-            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
-            {
-                AsyncTaskListener.ExpressionListUpdateAsync(ose);
-            }
+            //if (startupException != null)
+            //{
+            //    AsyncTaskListener.LogMessageAsync(startupException);
+            //}
 
-            cqgDataManagement = new CQGDataManagement(this);
+            //foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            //{
+            //    AsyncTaskListener.ExpressionListUpdateAsync(ose);
+            //}
 
-            cqgDataManagement.sendSubscribeRequest(false);
+            //cqgDataManagement = new CQGDataManagement(this);
+
+            //cqgDataManagement.sendSubscribeRequest(false);
         }
 
         private void btnCallAllInstruments_Click(object sender, EventArgs e)
@@ -390,5 +414,62 @@ namespace DataSupervisorForModel
             //cqgDataManagement.sendSubscribeRequest(false);
         }
 
-    }
+        private void RealtimeDataManagement_Shown(object sender, EventArgs e)
+        {
+            StartDataCollectionSystem();
+        }
+
+        public void StartDataCollectionSystem()
+        {
+
+#if DEBUG
+            try
+#endif
+            {
+                Thread dataCollectionSystemThread = new Thread(new ParameterizedThreadStart(RunDataCollectionSystem));
+                dataCollectionSystemThread.IsBackground = true;
+                dataCollectionSystemThread.Start();
+
+            }
+#if DEBUG
+            catch (Exception ex)
+            {
+                //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
+                AsyncTaskListener.LogMessageAsync(ex.ToString());
+            }
+#endif
+
+        }
+
+        public void RunDataCollectionSystem(Object obj)
+        {
+            AsyncTaskListener.StatusUpdateAsync(
+                "Starting Up...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+            bool setupCorrectly = SetupInstrumentAndContractListToCollect();
+
+            if (!setupCorrectly)
+            {
+                AsyncTaskListener.LogMessageAsync("Network or Startup Error; Check VPN");
+            }
+
+            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            {
+                //DataCollectionLibrary.contractSummaryGridList.Rows.Add();
+                //DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][1] = ose.contract.idcontract;
+                AsyncTaskListener.ExpressionListUpdateAsync(ose);
+            }
+
+            cqgDataManagement = new CQGDataManagement(this);
+
+            AsyncTaskListener.StatusUpdateAsync(
+                "Making Call To Data...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+            cqgDataManagement.sendSubscribeRequest(false);
+
+            
+        }
+
+
+        }
 }
