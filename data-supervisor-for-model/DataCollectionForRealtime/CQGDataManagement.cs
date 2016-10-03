@@ -18,7 +18,7 @@ namespace DataSupervisorForModel
 
             this.realtimeDataManagement = realtimeDataManagement;
 
-            initializeCQGAndCallbacks(null);
+            
 
             //ThreadPool.QueueUserWorkItem(new WaitCallback(initializeCQGAndCallbacks));
 
@@ -38,6 +38,8 @@ namespace DataSupervisorForModel
         internal void AsyncTaskListener_UpdateCQGDataManagement()
         {
             shutDownCQGConn();
+
+            realtimeDataManagement.StartDataCollectionSystem();
         }
 
         internal void connectCQG()

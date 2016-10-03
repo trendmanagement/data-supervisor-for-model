@@ -19,6 +19,10 @@ namespace DataSupervisorForModel
         private static IMongoCollection<Contract> _contractCollection;
         private static IMongoCollection<OHLCData> _futureBarCollection;
 
+        
+
+        
+
         //private static string mongoDataCollection;
 
         static MongoDBConnectionAndSetup()
@@ -39,6 +43,8 @@ namespace DataSupervisorForModel
             var keys = Builders<OHLCData>.IndexKeys.Ascending("idcontract").Descending("bartime");
             _futureBarCollection.Indexes.CreateOneAsync(keys);
         }
+
+        
 
         //public static IMongoCollection<Mongo_OptionSpreadExpression> MongoDataCollection
         //{
@@ -79,10 +85,11 @@ namespace DataSupervisorForModel
             }
             catch (Exception e)
             {
-                //TSErrorCatch.debugWriteOut(e.ToString());
-                AsyncTaskListener.LogMessageAsync(e.ToString());
+                MongoFailureMethod(e.ToString());
 
-                AsyncTaskListener.UpdateCQGDataManagementAsync();
+                //AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                //AsyncTaskListener.UpdateCQGDataManagementAsync();
             }
 
         }
@@ -113,10 +120,11 @@ namespace DataSupervisorForModel
             }
             catch (Exception e)
             {
-                //TSErrorCatch.debugWriteOut(e.ToString());
-                AsyncTaskListener.LogMessageAsync(e.ToString());
+                MongoFailureMethod(e.ToString());
 
-                AsyncTaskListener.UpdateCQGDataManagementAsync();
+                //AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                //AsyncTaskListener.UpdateCQGDataManagementAsync();
             }
         }
 
@@ -130,12 +138,32 @@ namespace DataSupervisorForModel
             }
             catch (Exception e)
             {
-                //TSErrorCatch.debugWriteOut(e.ToString());
-                AsyncTaskListener.LogMessageAsync(e.ToString());
+                MongoFailureMethod(e.ToString());
 
-                AsyncTaskListener.UpdateCQGDataManagementAsync();
+                //AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                //AsyncTaskListener.UpdateCQGDataManagementAsync();
+
+                //AsyncTaskListener.LogMessageAsync("CQG API Connection has been Stopped");
             }
             
+        }
+
+        internal static void MongoFailureMethod(string errorMessage)
+        {
+            lock (AsyncTaskListener._InSetupAndConnectionMode)
+            {
+                if (!AsyncTaskListener._InSetupAndConnectionMode.value)
+                {
+                    AsyncTaskListener.Set_InSetupAndConnectionMode(true);
+
+                    AsyncTaskListener.LogMessageAsync(errorMessage);
+
+                    AsyncTaskListener.UpdateCQGDataManagementAsync();
+
+                    AsyncTaskListener.LogMessageAsync("CQG API Connection has been Stopped. \nThere has been an error connecting to the MongoDB. \nThe program is attempting a complete recycle.");
+                }
+            }
         }
 
 
@@ -210,6 +238,7 @@ namespace DataSupervisorForModel
             }
             catch (Exception e)
             {
+                MongoFailureMethod(e.ToString());
                 //TSErrorCatch.debugWriteOut(e.ToString());
                 //AsyncTaskListener.LogMessage(e.ToString());
 
@@ -254,43 +283,43 @@ namespace DataSupervisorForModel
         }
 
 
-        internal static async Task createDocument()
-        {
-            var document = new BsonDocument
-            {
-                { "address" , new BsonDocument
-                    {
-                        { "street", "2 Avenue" },
-                        { "zipcode", "10075" },
-                        { "building", "1480" },
-                        { "coord", new BsonArray { 73.9557413, 40.7720266 } }
-                    }
-                },
-                { "borough", "Manhattan" },
-                { "cuisine", "Italian" },
-                { "grades", new BsonArray
-                    {
-                        new BsonDocument
-                        {
-                            { "date", new DateTime(2014, 10, 1, 0, 0, 0, DateTimeKind.Utc) },
-                            { "grade", "A" },
-                            { "score", 11 }
-                        },
-                        new BsonDocument
-                        {
-                            { "date", new DateTime(2014, 1, 6, 0, 0, 0, DateTimeKind.Utc) },
-                            { "grade", "B" },
-                            { "score", 17 }
-                        }
-                    }
-                },
-                { "name", "Vella" },
-                { "restaurant_id", "41704620" }
-            };
+        //internal static async Task createDocument()
+        //{
+        //    var document = new BsonDocument
+        //    {
+        //        { "address" , new BsonDocument
+        //            {
+        //                { "street", "2 Avenue" },
+        //                { "zipcode", "10075" },
+        //                { "building", "1480" },
+        //                { "coord", new BsonArray { 73.9557413, 40.7720266 } }
+        //            }
+        //        },
+        //        { "borough", "Manhattan" },
+        //        { "cuisine", "Italian" },
+        //        { "grades", new BsonArray
+        //            {
+        //                new BsonDocument
+        //                {
+        //                    { "date", new DateTime(2014, 10, 1, 0, 0, 0, DateTimeKind.Utc) },
+        //                    { "grade", "A" },
+        //                    { "score", 11 }
+        //                },
+        //                new BsonDocument
+        //                {
+        //                    { "date", new DateTime(2014, 1, 6, 0, 0, 0, DateTimeKind.Utc) },
+        //                    { "grade", "B" },
+        //                    { "score", 17 }
+        //                }
+        //            }
+        //        },
+        //        { "name", "Vella" },
+        //        { "restaurant_id", "41704620" }
+        //    };
 
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
-            await collection.InsertOneAsync(document);
-        }
+        //    var collection = _database.GetCollection<BsonDocument>("restaurants");
+        //    await collection.InsertOneAsync(document);
+        //}
 
         internal static async Task getDocument()
         {

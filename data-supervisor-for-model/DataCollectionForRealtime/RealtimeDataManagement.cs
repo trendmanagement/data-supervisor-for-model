@@ -33,11 +33,13 @@ namespace DataSupervisorForModel
 
             AsyncTaskListener.UpdatedStatus += AsyncTaskListener_UpdatedStatus;
 
-            
+
 
             AsyncTaskListener.UpdateExpressionGrid += AsyncTaskListener_ExpressionListUpdate;
 
             SetupContractSummaryGridList();
+
+            cqgDataManagement = new CQGDataManagement(this);
 
             //DataCollectionLibrary DataCollectionLibrary = new DataCollectionLibrary();
 
@@ -53,10 +55,10 @@ namespace DataSupervisorForModel
 
         private void SetupContractSummaryGridList()
         {
-            expressionListDataGrid.DataSource = DataCollectionLibrary.contractSummaryGridList;
+            expressionListDataGrid.DataSource = DataCollectionLibrary.contractSummaryGridListDataTable;
 
-            DataCollectionLibrary.contractSummaryGridList.Columns.Add("Contract");
-            DataCollectionLibrary.contractSummaryGridList.Columns.Add("Last Update Time");
+            DataCollectionLibrary.contractSummaryGridListDataTable.Columns.Add("Contract");
+            DataCollectionLibrary.contractSummaryGridListDataTable.Columns.Add("Last Update Time");
 
             expressionListDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
@@ -64,6 +66,8 @@ namespace DataSupervisorForModel
 
         private bool SetupInstrumentAndContractListToCollect()
         {
+
+            DataCollectionLibrary.ResetAndInitializeData();
 
             //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
             //mongoDBConnectionAndSetup.connectToMongoDB();
@@ -93,10 +97,10 @@ namespace DataSupervisorForModel
 
                 foreach (Contract contract in contractHashEntry.Value)
                 {
-                   // if (contractListFromMongo.ContainsKey(contract.idcontract))
-                   // {
-                   //     contractListFromMongo.Remove(contract.idcontract);
-                   // }
+                    // if (contractListFromMongo.ContainsKey(contract.idcontract))
+                    // {
+                    //     contractListFromMongo.Remove(contract.idcontract);
+                    // }
 
                     Instrument instrument = DataCollectionLibrary.instrumentHashTable[contract.idinstrument];
 
@@ -110,10 +114,10 @@ namespace DataSupervisorForModel
                     contract.previousDateTimeBoundaryStart = previousDateCollectionStart;
 
                     //now get the ose from mongo and see if it has the correct data in the future bar data field
-                    OptionSpreadExpression ose = 
+                    OptionSpreadExpression ose =
                         MongoDBConnectionAndSetup.GetContractFromMongo(contract, instrument);
 
-                    if(ose == null)
+                    if (ose == null)
                     {
                         //startupException = "Network Error";
 
@@ -121,7 +125,6 @@ namespace DataSupervisorForModel
                     }
 
                     ose.row = row++;
-
 
                     DataCollectionLibrary.optionSpreadExpressionList.Add(ose);
 
@@ -312,8 +315,8 @@ namespace DataSupervisorForModel
             //*******************
         }
 
-         private void AsyncTaskListener_ExpressionListUpdate(
-            OptionSpreadExpression ose)
+        private void AsyncTaskListener_ExpressionListUpdate(
+           OptionSpreadExpression ose)
         {
             Action action = new Action(
                 () =>
@@ -323,17 +326,17 @@ namespace DataSupervisorForModel
                     //    expressionListDataGrid.RowCount = (ose.row + 1);
                     //}
 
-                    if (ose.row + 1 > DataCollectionLibrary.contractSummaryGridList.Rows.Count)
+                    if (ose.row + 1 > DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Count)
                     {
-                        DataCollectionLibrary.contractSummaryGridList.Rows.Add();
-                        
+                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Add();
+
                     }
 
                     if (!ose.filledContractDisplayName)
                     {
                         ose.filledContractDisplayName = true;
 
-                        DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][0] =
+                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][0] =
                             ose.contract.idcontract + " - "
                             + ose.contract.contractname;
                     }
@@ -342,7 +345,7 @@ namespace DataSupervisorForModel
                         && ose.futureTimedBars.Count > 0
                         && ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp != null)
                     {
-                        DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][1] =
+                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][1] =
                             ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp;
                     }
 
@@ -405,7 +408,7 @@ namespace DataSupervisorForModel
         private void btnCallAllInstruments_Click(object sender, EventArgs e)
         {
             cqgDataManagement.sendSubscribeRequest(false);
-        }       
+        }
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
         {
@@ -446,30 +449,37 @@ namespace DataSupervisorForModel
             AsyncTaskListener.StatusUpdateAsync(
                 "Starting Up...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
-            bool setupCorrectly = SetupInstrumentAndContractListToCollect();
-
-            if (!setupCorrectly)
+            while (AsyncTaskListener._InSetupAndConnectionMode.value)
             {
-                AsyncTaskListener.LogMessageAsync("Network or Startup Error; Check VPN");
+
+                bool setupCorrectly = SetupInstrumentAndContractListToCollect();
+
+                if (setupCorrectly)
+                {
+                    foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+                    {
+                        //DataCollectionLibrary.contractSummaryGridList.Rows.Add();
+                        //DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][1] = ose.contract.idcontract;
+                        AsyncTaskListener.ExpressionListUpdateAsync(ose);
+                    }
+
+                    cqgDataManagement.initializeCQGAndCallbacks(null);
+
+                    AsyncTaskListener.Set_InSetupAndConnectionMode(false);
+
+                    AsyncTaskListener.StatusUpdateAsync(
+                        "Making Call To Data...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                    cqgDataManagement.sendSubscribeRequest(false);
+
+                }
+                else
+                {
+                    AsyncTaskListener.LogMessageAsync("Network or Startup Error; Check VPN");
+                }
             }
-
-            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
-            {
-                //DataCollectionLibrary.contractSummaryGridList.Rows.Add();
-                //DataCollectionLibrary.contractSummaryGridList.Rows[ose.row][1] = ose.contract.idcontract;
-                AsyncTaskListener.ExpressionListUpdateAsync(ose);
-            }
-
-            cqgDataManagement = new CQGDataManagement(this);
-
-            AsyncTaskListener.StatusUpdateAsync(
-                "Making Call To Data...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
-
-            cqgDataManagement.sendSubscribeRequest(false);
-
-            
         }
 
 
-        }
+    }
 }

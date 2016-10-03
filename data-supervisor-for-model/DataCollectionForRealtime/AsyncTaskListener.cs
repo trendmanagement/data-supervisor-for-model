@@ -49,6 +49,29 @@ namespace DataSupervisorForModel
         static DateTime notchTime;
         static int notchCount;
 
+
+
+        public static InSetupAndConnectionMode _InSetupAndConnectionMode = new InSetupAndConnectionMode();
+
+        /// <summary>
+        /// This value is initially set to true. It is used on startup to tell the system it is ok to connect to Mongodb
+        /// Once CQG connection and db setup this value is set to false
+        /// </summary>
+        public class InSetupAndConnectionMode
+        {
+            public bool value = true;
+        }
+
+        internal static void Set_InSetupAndConnectionMode(bool valueIn)
+        {
+            lock (_InSetupAndConnectionMode)
+            {
+                _InSetupAndConnectionMode.value = valueIn;
+
+            }
+        }
+
+
         public static void InitAsync(string msg = null)
         {
             notchTime = DateTime.Now;
