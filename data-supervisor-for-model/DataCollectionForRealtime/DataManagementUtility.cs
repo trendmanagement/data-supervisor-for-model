@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace DataSupervisorForModel
 {
-    class DataManagementUtility
+    static class DataManagementUtility
     {
-        internal int threadCount;
-        internal void closeThread(object o, EventArgs e)
+        internal static int threadCount;
+        internal static void closeThread(object o, EventArgs e)
         {
             // Decrease number of threads
             threadCount--;
         }
 
-        internal void openThread(object o, EventArgs e)
+        internal static void openThread(object o, EventArgs e)
         {
             // Decrease number of threads
             threadCount++;

@@ -25,8 +25,6 @@ namespace DataSupervisorForModel
             //AsyncTaskListener.LogMessage("test");
         }
 
-        private DataManagementUtility dataManagementUtility = new DataManagementUtility();
-
         private Thread subscriptionThread;
         private bool continueSubscriptionRequest = true;
         private const int SUBSCRIPTION_TIMEDELAY_CONSTANT = 125;
@@ -171,7 +169,7 @@ namespace DataSupervisorForModel
 
         public void sendSubscribeRequestRun(Object obj)
         {
-            dataManagementUtility.openThread(null, null);
+            DataManagementUtility.openThread(null, null);
 
             try
             {
@@ -280,7 +278,7 @@ namespace DataSupervisorForModel
                 AsyncTaskListener.LogMessageAsync(ex.ToString());
             }
 
-            dataManagementUtility.closeThread(null, null);
+            DataManagementUtility.closeThread(null, null);
         }
 
         public void requestFutureContractTimeBars(OptionSpreadExpression optionSpreadExpression)
@@ -339,15 +337,15 @@ namespace DataSupervisorForModel
 
         private void m_CEL_CELDataConnectionChg(CQG.eConnectionStatus new_status)
         {
-            StringBuilder connStatusString = new StringBuilder();
+            //StringBuilder connStatusString = new StringBuilder();
             StringBuilder connStatusShortString = new StringBuilder();
 
             STATUS_FORMAT statusFormat = STATUS_FORMAT.DEFAULT;
 
             if (m_CEL.IsStarted)
             {
-                connStatusString.Append("CQG API:");
-                connStatusString.Append(m_CEL.Environment.CELVersion);
+                //connStatusString.Append("CQG API:");
+                //connStatusString.Append(m_CEL.Environment.CELVersion);
                 connStatusShortString.Append("CQG:");
 
                 if (new_status != CQG.eConnectionStatus.csConnectionUp)
@@ -355,20 +353,20 @@ namespace DataSupervisorForModel
                     if (new_status == CQG.eConnectionStatus.csConnectionDelayed)
                     {
                         statusFormat = STATUS_FORMAT.CAUTION;
-                        connStatusString.Append(" - CONNECTION IS DELAYED");
+                        //connStatusString.Append(" - CONNECTION IS DELAYED");
                         connStatusShortString.Append("DELAYED");
                     }
                     else
                     {
                         statusFormat = STATUS_FORMAT.ALARM;
-                        connStatusString.Append(" - CONNECTION IS DOWN");
+                        //connStatusString.Append(" - CONNECTION IS DOWN");
                         connStatusShortString.Append("DOWN");
                     }
                 }
                 else
                 {
                     //statusFormat = STATUS_FORMAT.DEFAULT;
-                    connStatusString.Append(" - CONNECTION IS UP");
+                    //connStatusString.Append(" - CONNECTION IS UP");
                     connStatusShortString.Append("UP");
                 }
             }
@@ -376,7 +374,7 @@ namespace DataSupervisorForModel
             {
                 statusFormat = STATUS_FORMAT.CAUTION;
 
-                connStatusString.Append("WAITING FOR API CONNECTION");
+                //connStatusString.Append("WAITING FOR API CONNECTION");
 
                 connStatusShortString.Append("WAITING");
             }
