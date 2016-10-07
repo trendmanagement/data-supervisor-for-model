@@ -247,18 +247,23 @@ namespace DataSupervisorForModel
                             if (DataCollectionLibrary.optionSpreadExpressionList[i].normalSubscriptionRequest
                                 && !DataCollectionLibrary.optionSpreadExpressionList[i].alreadyRequestedMinuteBars)
                             {
-                                Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
+                                //if (DataCollectionLibrary.optionSpreadExpressionList[i].contract
+                                //    .idcontract == 6570)
+                                    {
 
-                                string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
-                                        + " : " + count + " OF " +
-                                        DataCollectionLibrary.optionSpreadExpressionList.Count;
+                                    Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
-                                AsyncTaskListener.LogMessageAsync(message);
+                                    string message = "SUBSCRIBE " + DataCollectionLibrary.optionSpreadExpressionList[i].contract.cqgsymbol
+                                            + " : " + count + " OF " +
+                                            DataCollectionLibrary.optionSpreadExpressionList.Count;
 
-                                AsyncTaskListener.StatusUpdateAsync(
-                                    message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+                                    AsyncTaskListener.LogMessageAsync(message);
 
-                                requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
+                                    AsyncTaskListener.StatusUpdateAsync(
+                                        message, STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                                    requestFutureContractTimeBars(DataCollectionLibrary.optionSpreadExpressionList[i]);
+                                }
                             }
                         }
 
@@ -579,7 +584,7 @@ namespace DataSupervisorForModel
                             }
 
 
-                            if (!firstBarAdded && !ohlcData.errorbar)
+                            if (!firstBarAdded)  // && !ohlcData.errorbar)
                             {
                                 barsToAdd.Add(ohlcData);
                             }
@@ -590,7 +595,7 @@ namespace DataSupervisorForModel
                             {
                                 firstBarAdded = false;
 
-                                if (!ohlcData.errorbar)
+                                //if (!ohlcData.errorbar)
                                 {
                                     Task t1 = MongoDBConnectionAndSetup.UpsertBardataToMongo(ohlcData);
                                 }
@@ -763,7 +768,7 @@ namespace DataSupervisorForModel
                             ose.reachedBarAfterDecisionBar = true;
                         }
 
-                        if (!ohlcData.errorbar)
+                        //if (!ohlcData.errorbar)
                         {
                             if (inserted)
                             {

@@ -18,41 +18,7 @@ namespace DataSupervisorForModel
             this.Context = contextTMLDB;
             this.IdInstrAndStripNameToExpDate = new Dictionary<Tuple<long, DateTime>, DateTime>();
         }
-
-        public bool GetThreeParams(string productName, ref long idInstrument, ref string cqgSymbol, ref double tickSize)
-        {
-            //AsyncTaskListener.LogMessage("Reading ID Instrument, CQG Symbol and Tick Size from TMLDB...");
-
-            tblinstrument record;
-            try
-            {
-                record = Context.tblinstruments.Where(item => item.idinstrument == 11).First();
-            }
-            catch (InvalidOperationException)
-            {
-                return false;
-            }
-            catch (SqlException)
-            {
-                return false;
-            }
-
-            idInstrument = record.idinstrument;
-
-            cqgSymbol = record.cqgsymbol;
-
-            double secondaryoptionticksize = record.secondaryoptionticksize;
-            tickSize = (secondaryoptionticksize > 0) ? secondaryoptionticksize : record.optionticksize;
-
-            //AsyncTaskListener.LogMessageFormat(
-            //    "ID Instrument = {0}\nCQG Symbol = {1}\nTick Size = {2}",
-            //    idInstrument,
-            //    cqgSymbol,
-            //    tickSize);
-
-            return true;
-        }
-
+        
         public bool GetContracts(
             ref List<Instrument> instrumentList,
             ref Dictionary<long, List<Contract>> contractHashTableByInstId, DateTime todaysDate)
@@ -296,5 +262,40 @@ namespace DataSupervisorForModel
                 return expirationDate;
             }
         }
+
+        public bool GetThreeParams(string productName, ref long idInstrument, ref string cqgSymbol, ref double tickSize)
+        {
+            //AsyncTaskListener.LogMessage("Reading ID Instrument, CQG Symbol and Tick Size from TMLDB...");
+
+            tblinstrument record;
+            try
+            {
+                record = Context.tblinstruments.Where(item => item.idinstrument == 11).First();
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
+
+            idInstrument = record.idinstrument;
+
+            cqgSymbol = record.cqgsymbol;
+
+            double secondaryoptionticksize = record.secondaryoptionticksize;
+            tickSize = (secondaryoptionticksize > 0) ? secondaryoptionticksize : record.optionticksize;
+
+            //AsyncTaskListener.LogMessageFormat(
+            //    "ID Instrument = {0}\nCQG Symbol = {1}\nTick Size = {2}",
+            //    idInstrument,
+            //    cqgSymbol,
+            //    tickSize);
+
+            return true;
+        }
+
     }
 }

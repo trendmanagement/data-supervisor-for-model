@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using MongoDB.Bson.Serialization;
 using AutoMapper;
 
+
 namespace DataSupervisorForModel
 {
     static class MongoDBConnectionAndSetup
@@ -167,7 +168,7 @@ namespace DataSupervisorForModel
         }
 
 
-        internal static Dictionary<long, Contract> getContractListFromMongo()
+        internal static Dictionary<long, Contract> GetContractListFromMongo()
         {
             List<Contract> mongoContractList = _contractCollection.Find(_ => true).ToList();
 
@@ -176,7 +177,7 @@ namespace DataSupervisorForModel
             return mongoContractDictionary;
         }
 
-        internal static void removeExtraContracts(Dictionary<long, Contract> contractListFromMongo)
+        internal static void RemoveExtraContracts(Dictionary<long, Contract> contractListFromMongo)
         {
             foreach (KeyValuePair<long, Contract> contractInMongoHashEntry in contractListFromMongo)
             {
