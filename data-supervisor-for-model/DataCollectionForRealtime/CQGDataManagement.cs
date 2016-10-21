@@ -249,7 +249,7 @@ namespace DataSupervisorForModel
                             {
                                 //if (DataCollectionLibrary.optionSpreadExpressionList[i].contract
                                 //    .idcontract == 6570)
-                                    {
+                                {
 
                                     Thread.Sleep(SUBSCRIPTION_TIMEDELAY_CONSTANT);
 
@@ -473,7 +473,7 @@ namespace DataSupervisorForModel
 
                             
 
-                            ohlcData.bartime = cqg_TimedBarsIn[idxToAdd].Timestamp;
+                            ohlcData.bartime = new DateTime(cqg_TimedBarsIn[idxToAdd].Timestamp.Ticks, DateTimeKind.Utc);
 
                             ohlcData.open = 0;
                             ohlcData.high = 0;
@@ -658,7 +658,10 @@ namespace DataSupervisorForModel
 
                         ohlcData.idcontract = ose.contract.idcontract;
 
-                        ohlcData.bartime = cqg_TimedBarsIn[index].Timestamp;
+                        //ohlcData.bartime = cqg_TimedBarsIn[index].Timestamp.ToUniversalTime();
+
+                        ohlcData.bartime = new DateTime(cqg_TimedBarsIn[index].Timestamp.Ticks, DateTimeKind.Utc);
+
 
                         ohlcData.open = 0;
                         ohlcData.high = 0;

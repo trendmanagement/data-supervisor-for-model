@@ -18,7 +18,7 @@ namespace DataSupervisorForModel
         public long idcontract { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
-        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime bartime { get; set; }
 
         [BsonRepresentation(BsonType.Double)]
@@ -40,6 +40,39 @@ namespace DataSupervisorForModel
 
         public bool errorbar { get; set; }
     };
+
+    //public class OHLCData_localtime
+    //{
+    //    [BsonId]
+    //    [BsonRepresentation(BsonType.ObjectId)]
+    //    public ObjectId _id { get; set; }
+
+    //    [BsonRepresentation(BsonType.Int64)]
+    //    public long idcontract { get; set; }
+
+    //    [BsonRepresentation(BsonType.DateTime)]
+    //    [BsonDateTimeOptions(Kind = DateTimeKind.Unspecified)]
+    //    public DateTime bartime { get; set; }
+
+    //    [BsonRepresentation(BsonType.Double)]
+    //    public double open { get; set; }
+
+    //    [BsonRepresentation(BsonType.Double)]
+    //    public double high { get; set; }
+
+    //    [BsonRepresentation(BsonType.Double)]
+    //    public double low { get; set; }
+
+    //    [BsonRepresentation(BsonType.Double)]
+    //    public double close { get; set; }
+
+    //    [BsonRepresentation(BsonType.Int32)]
+    //    public int volume { get; set; }
+
+    //    //public int cumulativeVolume { get; set; }
+
+    //    public bool errorbar { get; set; }
+    //};
 
     public class TheoreticalBar
     {

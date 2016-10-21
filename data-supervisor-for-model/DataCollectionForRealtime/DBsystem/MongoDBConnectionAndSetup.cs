@@ -19,10 +19,11 @@ namespace DataSupervisorForModel
 
         private static IMongoCollection<Contract> _contractCollection;
         private static IMongoCollection<OHLCData> _futureBarCollection;
+        //private static IMongoCollection<OHLCData_localtime> _futureBarCollection_localtime;
 
-        
 
-        
+
+
 
         //private static string mongoDataCollection;
 
@@ -33,7 +34,6 @@ namespace DataSupervisorForModel
 
             _database = _client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["MongoDbName"]);
 
-            //mongoDataCollection = System.Configuration.ConfigurationManager.AppSettings["MongoCollection"];
 
             _contractCollection = _database.GetCollection<Contract>(
                 System.Configuration.ConfigurationManager.AppSettings["MongoContractCollection"]);
@@ -43,6 +43,10 @@ namespace DataSupervisorForModel
 
             var keys = Builders<OHLCData>.IndexKeys.Ascending("idcontract").Descending("bartime");
             _futureBarCollection.Indexes.CreateOneAsync(keys);
+
+
+            //_futureBarCollection_localtime = _database.GetCollection<OHLCData_localtime>(
+            //    System.Configuration.ConfigurationManager.AppSettings["MongoFutureBarCollection"]);
         }
 
         
