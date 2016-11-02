@@ -611,6 +611,7 @@ namespace DataSupervisorForModel
                         ose.lastTimeFuturePriceUpdated =
                                         cqg_TimedBarsIn.EndTimestamp;
 
+                        //ose.staleData = STALE_DATA_INDICATORS.UP_TO_DATE;
 
                         AsyncTaskListener.ExpressionListUpdateAsync(ose);
                     }

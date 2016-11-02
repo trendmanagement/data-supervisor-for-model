@@ -157,6 +157,7 @@
             this.expressionListDataGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.expressionListDataGrid.Size = new System.Drawing.Size(293, 364);
             this.expressionListDataGrid.TabIndex = 7;
+            this.expressionListDataGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.expressionListDataGrid_CellFormatting);
             // 
             // ConnectionStatus
             // 

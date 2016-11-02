@@ -41,14 +41,8 @@ namespace DataSupervisorForModel
 
             cqgDataManagement = new CQGDataManagement(this);
 
-            //DataCollectionLibrary DataCollectionLibrary = new DataCollectionLibrary();
 
-            //mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
-
-
-
-
-            //SetupMongoUpdateTimerThread();
+            SetupMongoUpdateTimerThread();
 
 
         }
@@ -59,6 +53,7 @@ namespace DataSupervisorForModel
 
             DataCollectionLibrary.contractSummaryGridListDataTable.Columns.Add("Contract");
             DataCollectionLibrary.contractSummaryGridListDataTable.Columns.Add("Last Update Time");
+            //DataCollectionLibrary.contractSummaryGridListDataTable.Columns.Add("Stale");
 
             expressionListDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
@@ -134,15 +129,6 @@ namespace DataSupervisorForModel
 
             }
 
-            //DataCollectionLibrary.contractSummaryGridList.
-
-            //expressionListDataGrid.RowCount = row;
-            //expressionListDataGrid.ColumnCount = 1;
-
-            //expressionListDataGrid.hea.Columns[-1].Width = 100;
-            //expressionListDataGrid.Columns[0].Width = 150;
-
-            //MongoDBConnectionAndSetup.removeExtraContracts(contractListFromMongo);
 
 
             return true;
@@ -150,23 +136,30 @@ namespace DataSupervisorForModel
 
         private void SetupMongoUpdateTimerThread()
         {
-            aTimer = new System.Timers.Timer();
-            aTimer.Interval = 2000;
+            try
+            {
+                aTimer = new System.Timers.Timer();
+                aTimer.Interval = 180000;
 
-            // Alternate method: create a Timer with an interval argument to the constructor.
-            //aTimer = new System.Timers.Timer(2000);
+                // Alternate method: create a Timer with an interval argument to the constructor.
+                //aTimer = new System.Timers.Timer(2000);
 
-            // Create a timer with a two second interval.
-            aTimer = new System.Timers.Timer(30000);
+                // Create a timer with a two second interval.
+                //aTimer = new System.Timers.Timer(30000);
 
-            // Hook up the Elapsed event for the timer. 
-            aTimer.Elapsed += OnTimedEvent;
+                // Hook up the Elapsed event for the timer. 
+                aTimer.Elapsed += OnTimedEvent;
 
-            // Have the timer fire repeated events (true is the default)
-            aTimer.AutoReset = true;
+                // Have the timer fire repeated events (true is the default)
+                aTimer.AutoReset = true;
 
-            // Start the timer
-            aTimer.Enabled = true;
+                // Start the timer
+                aTimer.Enabled = true;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
 
         }
 
@@ -174,7 +167,47 @@ namespace DataSupervisorForModel
         {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
 
-            //Task t = MongoDBConnectionAndSetup.UpdateBardataToMongo();
+            //if (DataCollectionLibrary.optionSpreadExpressionList.Count > 0)
+            {
+
+                int staleCount = 0;
+
+                foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+                {
+                    double testspan = (DateTime.Now.TimeOfDay -
+                                ose.lastTimeFuturePriceUpdated.TimeOfDay).TotalMinutes;
+
+                    if (testspan > 15)
+                    {
+                        //DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                        // Convert.ToInt16(STALE_DATA_INDICATORS.VERY_STALE);
+
+                        //ose.staleData = STALE_DATA_INDICATORS.VERY_STALE;
+
+                        staleCount++;
+                    }
+                    //else if (testspan > 5)
+                    //{
+                    //    //DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                    //    // Convert.ToInt16(STALE_DATA_INDICATORS.MILDLY_STALE);
+
+                    //    //ose.staleData = STALE_DATA_INDICATORS.MILDLY_STALE;
+                    //}
+                    //else
+                    //{
+                    //    //DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                    //    // Convert.ToInt16(STALE_DATA_INDICATORS.UP_TO_DATE);
+
+                    //    //ose.staleData = STALE_DATA_INDICATORS.UP_TO_DATE;
+                    //}
+                }
+
+                if(staleCount >= DataCollectionLibrary.optionSpreadExpressionList.Count - 5)
+                {
+                    MongoDBConnectionAndSetup.MongoFailureMethod("CQG Data Stale");
+                }
+            }
+
         }
 
         void StartListerning()
@@ -321,59 +354,101 @@ namespace DataSupervisorForModel
             Action action = new Action(
                 () =>
                 {
-                    //if((ose.row + 1) > expressionListDataGrid.RowCount)
-                    //{
-                    //    expressionListDataGrid.RowCount = (ose.row + 1);
-                    //}
-
-                    if (ose.row + 1 > DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Count)
+                    //if (!Convert.IsDBNull(DataCollectionLibrary.contractSummaryGridListDataTable))
+                    try
                     {
-                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Add();
+                        //if((ose.row + 1) > expressionListDataGrid.RowCount)
+                        //{
+                        //    expressionListDataGrid.RowCount = (ose.row + 1);
+                        //}
 
+                        if (ose.row + 1 > DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Count)
+                        {
+                            DataCollectionLibrary.contractSummaryGridListDataTable.Rows.Add();
+
+                        }
+
+                        if (!ose.filledContractDisplayName)
+                        {
+                            ose.filledContractDisplayName = true;
+
+                            DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][0] =
+                                ose.contract.idcontract + " - "
+                                + ose.contract.contractname;
+                        }
+
+
+
+                        if (ose.futureTimedBars != null
+                            && ose.futureTimedBars.Count > 0
+                            && ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp != null)
+                        {
+                            //if ((DateTime.Now.TimeOfDay -
+                            //    ose.lastTimeFuturePriceUpdated.TimeOfDay).TotalMinutes > 10)
+                            //{
+                            //    DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                            //     Convert.ToInt16(STALE_DATA_INDICATORS.VERY_STALE);
+
+                            //    ose.staleData = STALE_DATA_INDICATORS.VERY_STALE;
+                            //}
+                            //else if ((DateTime.Now.TimeOfDay -
+                            //    ose.lastTimeFuturePriceUpdated.TimeOfDay).TotalMinutes > 5)
+                            //{
+                            //    DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                            //     Convert.ToInt16(STALE_DATA_INDICATORS.MILDLY_STALE);
+
+                            //    ose.staleData = STALE_DATA_INDICATORS.MILDLY_STALE;
+                            //}
+                            //else
+                            //{
+                            //    DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                            //     Convert.ToInt16(STALE_DATA_INDICATORS.UP_TO_DATE);
+
+                            //    ose.staleData = STALE_DATA_INDICATORS.UP_TO_DATE;
+                            //}
+
+
+                            DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][1] =
+                                ose.lastTimeFuturePriceUpdated;
+                        }
+                        //else
+                        //{
+                        //    DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][2] =
+                        //         Convert.ToInt16(STALE_DATA_INDICATORS.VERY_STALE);
+
+                        //    ose.staleData = STALE_DATA_INDICATORS.VERY_STALE;
+                        //}
+
+                        /*expressionListDataGrid
+                            .Rows[ose.row].Cells[1].Value
+                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Open;
+
+                        expressionListDataGrid
+                            .Rows[ose.row].Cells[2].Value
+                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].High;
+
+                        expressionListDataGrid
+                            .Rows[ose.row].Cells[3].Value
+                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Low;
+
+                        expressionListDataGrid
+                            .Rows[ose.row].Cells[4].Value
+                            = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Close;
+                            */
+
+
+
+                        //if (!string.IsNullOrWhiteSpace(message))
+                        //{
+                        //    richTextBoxLog.Text += message + "\n";
+                        //    richTextBoxLog.Select(richTextBoxLog.Text.Length, richTextBoxLog.Text.Length);
+                        //   richTextBoxLog.ScrollToCaret();
+                        //}
                     }
-
-                    if (!ose.filledContractDisplayName)
+                    catch(Exception ex)
                     {
-                        ose.filledContractDisplayName = true;
-
-                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][0] =
-                            ose.contract.idcontract + " - "
-                            + ose.contract.contractname;
+                        Console.WriteLine(ex.ToString());
                     }
-
-                    if (ose.futureTimedBars != null
-                        && ose.futureTimedBars.Count > 0
-                        && ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp != null)
-                    {
-                        DataCollectionLibrary.contractSummaryGridListDataTable.Rows[ose.row][1] =
-                            ose.futureTimedBars[ose.futureTimedBars.Count - 1].Timestamp;
-                    }
-
-                    /*expressionListDataGrid
-                        .Rows[ose.row].Cells[1].Value
-                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Open;
-
-                    expressionListDataGrid
-                        .Rows[ose.row].Cells[2].Value
-                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].High;
-
-                    expressionListDataGrid
-                        .Rows[ose.row].Cells[3].Value
-                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Low;
-
-                    expressionListDataGrid
-                        .Rows[ose.row].Cells[4].Value
-                        = ose.futureTimedBars[ose.futureTimedBars.Count - 1].Close;
-                        */
-
-
-
-                    //if (!string.IsNullOrWhiteSpace(message))
-                    //{
-                    //    richTextBoxLog.Text += message + "\n";
-                    //    richTextBoxLog.Select(richTextBoxLog.Text.Length, richTextBoxLog.Text.Length);
-                    //   richTextBoxLog.ScrollToCaret();
-                    //}
                 });
 
             try
@@ -480,6 +555,33 @@ namespace DataSupervisorForModel
             }
         }
 
-
+        private void expressionListDataGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            try
+            {
+                if (!Convert.IsDBNull(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+                    && e.ColumnIndex == 2)
+                {
+                    if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+                        == Convert.ToInt16(STALE_DATA_INDICATORS.UP_TO_DATE))
+                    {
+                        e.CellStyle.BackColor = Color.Green;
+                    }
+                    else if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+                        == Convert.ToInt16(STALE_DATA_INDICATORS.MILDLY_STALE))
+                    {
+                        e.CellStyle.BackColor = Color.Yellow;
+                    }
+                    else
+                    {
+                        e.CellStyle.BackColor = Color.Red;
+                    }
+                }
+            }
+            catch(Exception ee)
+            {
+                Console.WriteLine(ee.ToString());
+            }
+        }
     }
 }

@@ -55,4 +55,11 @@ namespace DataSupervisorForModel
         PRICE_BID,
         PRICE_THEORETICAL
     }
+
+    public enum STALE_DATA_INDICATORS
+    {
+        UP_TO_DATE,
+        MILDLY_STALE,
+        VERY_STALE
+    }
 }

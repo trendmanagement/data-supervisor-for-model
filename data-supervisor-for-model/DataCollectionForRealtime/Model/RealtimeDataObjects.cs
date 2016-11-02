@@ -134,6 +134,8 @@ namespace DataSupervisorForModel
 
         public int row;
 
+        public STALE_DATA_INDICATORS staleData;
+
         public DateTime CQGBarQueryStart;
 
         //public double ask;

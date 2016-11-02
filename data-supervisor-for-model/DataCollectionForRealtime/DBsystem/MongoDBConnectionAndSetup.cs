@@ -29,8 +29,14 @@ namespace DataSupervisorForModel
 
         static MongoDBConnectionAndSetup()
         {
+            //_client = new MongoClient(
+            //    System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
+
+
+
             _client = new MongoClient(
                 System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
+
 
             _database = _client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["MongoDbName"]);
 
