@@ -114,7 +114,31 @@ namespace DataSupervisorForModel
 
     }
 
-    
+    [BsonIgnoreExtraElements]
+    public class Contract_mongo_tmldb
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId _id { get; set; }
+
+        public string cqgsymbol { get; set; }
+
+        public string contractname { get; set; }
+
+        public long idcontract { get; set; }
+
+        public char month { get; set; }
+
+        public DateTime expirationdate { get; set; }
+
+        public int monthint { get; set; }
+
+        public int year { get; set; }
+
+        public long idinstrument { get; set; }
+    }
+
+
     public class OptionSpreadExpression
     {
 
@@ -127,7 +151,7 @@ namespace DataSupervisorForModel
         /// </summary>
         public int lastIdxToAdd = 0;
 
-        public Instrument instrument { get; set; }
+        public Instrument_mongo instrument { get; set; }
 
         public CQG.CQGInstrument cqgInstrument;
         public CQG.CQGTimedBars futureTimedBars;
@@ -179,334 +203,225 @@ namespace DataSupervisorForModel
         public bool settlementIsCurrentDay;
     }
 
-    //public class OptionSpreadExpression
-    //{
-    //    public CQG.CQGInstrument cqgInstrument;
-    //    public CQG.CQGTimedBars futureTimedBars;
+    [BsonIgnoreExtraElements]
+    public class Instrument_mongo
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId _id { get; set; }
 
-    //    public bool stopUpdating = false;
+        public long idinstrument { get; set; }
 
-    //    public int idInstrument;
+        public string symbol { get; set; }
 
-    //    public Instrument instrument;
+        public string description { get; set; }
 
-    //    public String cqgSymbol;
+        public string cqgsymbol { get; set; }
 
-    //    //public String cqgSubstituteSymbol;
+        public string exchangesymbol { get; set; }
 
+        public string optionexchangesymbol { get; set; }
 
-    //    public bool normalSubscriptionRequest = false;
-    //    public bool substituteSubscriptionRequest = false;
+        public string exchangesymbolTT { get; set; }
 
-    //    public bool useSubstituteSymbolAtEOD = false;
+        public string optionexchangesymbolTT { get; set; }
 
-    //    //this is used for margin calculation from option payoff chart
-    //    //******************************************
-    //    public int optionMonthInt;
-    //    public int optionYear;
+        public long idinstrumentgroup { get; set; }
 
-    //    public int futureContractMonthInt;
-    //    public int futureContractYear;
-    //    //******************************************
+        public long idexchange { get; set; }
 
-    //    public bool setSubscriptionLevel = false;
-    //    public bool requestedMinuteBars = false;
+        public long margin { get; set; }
 
-    //    public OPTION_EXPRESSION_TYPES optionExpressionType;
+        public double commissionpercontract { get; set; }
 
-    //    public OPTION_SPREAD_CONTRACT_TYPE callPutOrFuture;
+        public byte modeled { get; set; }
 
-    //    public char callPutOrFutureChar;
+        public byte enabled { get; set; }
 
+        public short listedspread { get; set; }
 
-    //    public int optionId; //only filled if contract is an option
-    //    public int underlyingFutureId;
+        public DateTime datastart { get; set; }
 
-    //    public int substituteOptionId; //only filled if contract is an option
-    //    public int substituteUnderlyingFutureId;
+        public int timeshifthours { get; set; }
 
+        public double ticksize { get; set; }
 
-    //    public int futureId; //only filled if contract is a future
-    //    public int substituteFutureId;
+        public double tickdisplay { get; set; }
 
+        public double tickvalue { get; set; }
 
-    //    public double strikePrice;
+        public double optionstrikeincrement { get; set; }
 
-    //    public double riskFreeRate = 0.01;
-    //    public bool riskFreeRateFilled = false;
+        public double optionstrikedisplay { get; set; }
 
-    //    public double yearFraction;
+        public double optionstrikedisplayTT { get; set; }
 
-    //    public DateTime lastTimeUpdated;
+        public double optionticksize { get; set; }
 
-    //    public double minutesSinceLastUpdate = 0;
+        public double optiontickdisplay { get; set; }
 
-    //    public DateTime lastTimeFuturePriceUpdated; //is separate b/c can get time stamp off of historical bars
+        public double optiontickvalue { get; set; }
 
-    //    //public DateTime decisionTime;
-    //    //public DateTime transactionTime;
-    //    //public DateTime latestDecisionTimeUpdated;
-    //    //public DateTime latestTransactionTimeUpdated;
+        public double secondaryoptionticksize { get; set; }
 
-    //    public double ask;
-    //    public bool askFilled;
+        public double secondaryoptiontickvalue { get; set; }
 
-    //    public double bid;
-    //    public bool bidFilled;
+        public double secondaryoptiontickdisplay { get; set; }
 
-    //    public double trade;
-    //    public bool tradeFilled;
+        public double secondaryoptionticksizerule { get; set; }
 
-    //    public double settlement;
-    //    public bool settlementFilled;
-    //    //public bool manuallyFilled;
-    //    public DateTime settlementDateTime;
-    //    public bool settlementIsCurrentDay;
+        public double spanticksize { get; set; }
 
-    //    public double yesterdaySettlement;
-    //    public bool yesterdaySettlementFilled;
+        public double spantickdisplay { get; set; }
 
+        public double spanstrikedisplay { get; set; }
 
-    //    public double defaultBidPriceBeforeTheor;
-    //    //public bool defaultBidPriceBeforeTheorFilled;
+        public double spanoptionticksize { get; set; }
 
-    //    public double defaultAskPriceBeforeTheor;
-    //    //public bool defaultAskPriceBeforeTheorFilled;        
+        public double spanoptiontickdisplay { get; set; }
 
-    //    public double defaultMidPriceBeforeTheor;
+        public double optionadmstrikedisplay { get; set; }
 
-    //    public double defaultPrice;
-    //    public bool defaultPriceFilled;
+        public double admoptionftpfilestrikedisplay { get; set; }
 
+        public DateTime optionstart { get; set; }
 
+        public DateTime spanoptionstart { get; set; }
 
-    //    public double decisionPrice;
-    //    public DateTime decisionPriceTime;
-    //    public bool decisionPriceFilled = false;
+        public byte stoptype { get; set; }
 
-    //    public double transactionPrice;
-    //    public DateTime transactionPriceTime;
-    //    public bool transactionPriceFilled = false;
+        public long pricebandinticks { get; set; }
 
+        public long limittickoffset { get; set; }
 
-    //    public double impliedVolFromSpan;
+        public DateTime customdayboundarytime { get; set; }
 
+        public short usedailycustomdata { get; set; }
 
-    //    public double theoreticalOptionPrice;
+        public short decisionoffsetminutes { get; set; }
 
-    //    public double settlementImpliedVol;
+        public byte optionenabled { get; set; }
 
-    //    public double impliedVol;
+        public byte productionenabled { get; set; }
 
-    //    public bool impliedVolFilled = false; //used for calculating option transaction price
+        public string admcode { get; set; }
 
-    //    public double delta;
-    //    //public double gamma;
-    //    //public double vega;
-    //    //public double theta;
+        public string admexchangecode { get; set; }
 
+        public double admfuturepricefactor { get; set; }
 
+        public double admoptionpricefactor { get; set; }
 
-    //    //public List<int> spreadIdx = new List<int>();
-    //    //public List<int> legIdx = new List<int>();
-    //    //public List<int> rowIdx = new List<int>();
+        public string spanfuturecode { get; set; }
 
+        public string spanoptioncode { get; set; }
 
-    //    //public List<int> substituteSymbolSpreadIdx = new List<int>();
-    //    public List<int> substituteSymbolLegIdx = new List<int>();
-    //    public List<int> substituteSymbolRowIdx = new List<int>();
+        public byte optiondatamonthscollected { get; set; }
 
-    //    public OptionSpreadExpression mainExpressionSubstitutionUsedFor;
+        public string notes { get; set; }
 
+        public short idAssetClass { get; set; }
 
-    //    //public List<int> admStrategyIdx = new List<int>();
-    //    public List<int> admPositionImportWebIdx = new List<int>();
-    //    public List<int> admRowIdx = new List<int>();
+        public short substitutesymbol_eod { get; set; }
 
+        public string instrumentsymbol_pre_eod { get; set; }
 
-    //    public List<OHLCData> futureBarData;
-    //    public List<DateTime> futureBarTimeRef;
-    //    public List<TheoreticalBar> theoreticalOptionDataList;
+        public string instrumentsymboleod_eod { get; set; }
 
+        public int instrumentid_eod { get; set; }
 
-    //    public DateTime previousDateTimeBoundaryStart;
+        public DateTime settlementtime { get; set; }
 
-    //    public OHLCData todayTransactionBar;
-    //    public DateTime todayTransactionTimeBoundary;
-    //    public bool reachedTransactionTimeBoundary = false;
-    //    public bool filledAfterTransactionTimeBoundary = false;
 
-    //    public OHLCData decisionBar;
-    //    public DateTime todayDecisionTime;
-    //    public bool reachedDecisionBar = false;
-    //    public bool reachedBarAfterDecisionBar = false;
-    //    public bool reached1MinAfterDecisionBarUsedForSnapshot = false;
+        /// <summary>
+        /// everything below is not filled in from the database
+        /// </summary>
 
-    //    public CQG_REFRESH_STATE guiRefresh = CQG_REFRESH_STATE.NOTHING;
-    //    public CQG_REFRESH_STATE totalCalcsRefresh = CQG_REFRESH_STATE.NOTHING;
+        public Exchange_mongo exchange;
 
-    //    public OptionSpreadExpression underlyingFutureExpression;
 
-    //    //public List<OptionSpreadExpression> optionExpressionsThatUseThisFutureAsUnderlying;
+        public DateTime settlementTime;
 
-    //    //Expression List grid
-    //    //public int dataGridExpressionListRow;
+        public bool eodAnalysisAtInstrument;
 
-    //    //************************
+        public DateTime settlementDateTimeMarker;
 
-    //    public OptionSpreadExpression(OPTION_SPREAD_CONTRACT_TYPE callPutOrFuture,
-    //        OPTION_EXPRESSION_TYPES optionExpressionType)
-    //    {
-    //        this.callPutOrFuture = callPutOrFuture;
-    //        this.optionExpressionType = optionExpressionType;
+        //public string tradingTechnologiesExchange;
 
-    //        if (optionExpressionType == OPTION_EXPRESSION_TYPES.SPREAD_LEG_PRICE
-    //            && callPutOrFuture == OPTION_SPREAD_CONTRACT_TYPE.FUTURE)
-    //        {
-    //            optionExpressionsThatUseThisFutureAsUnderlying
-    //                = new List<OptionSpreadExpression>();
-    //        }
+        //public string tradingTechnologiesGateway;
 
-    //    }
-    //}
+        public string coreAPImarginId;
 
-    //public class Instrument
-    //{
-    //    public bool continueRealtimeDataCurrent;
+        public string coreAPI_FCM_marginId;
 
-    //    public bool isSpread;
+        public double coreAPIinitialMargin;
 
-    //    public bool isListedSpread;
+        public double coreAPImaintenanceMargin;
 
-    //    public int idxOfInstrumentInList;
+        public double coreAPI_FCM_initialMargin;
 
-    //    public String CQGsymbol;
-    //    public String name;
-    //    public String exchangeSymbol;
-    //    public String optionExchangeSymbol;
-    //    public String exchangeSymbolTT;
-    //    public String optionExchangeSymbolTT;
+        public double coreAPI_FCM_maintenanceMargin;
 
-    //    public String description;
-    //    public String country;
-    //    public String currency;
+        /// <summary>
+        /// used to caculate and store the instrument totals
+        /// </summary>
+        //public List<LiveSpreadTotals> instrumentModelCalcTotals_ByAccount = new List<LiveSpreadTotals>();
+        ////public List<LiveSpreadTotals> instrumentSpreadTotals_ByAccount = new List<LiveSpreadTotals>();
 
-    //    public DateTime dataStart;
-    //    public DateTime dataStop;
-    //    public DateTime expiration;
+        //public List<LiveSpreadTotals> instrumentADMCalcTotalsByAccount = new List<LiveSpreadTotals>();
+        ////public List<LiveSpreadTotals> instrumentADMSpreadTotalsByAccount = new List<LiveSpreadTotals>();
 
-    //    public int year;
-    //    public char month;
 
-    //    public int idInstrument;
-    //    public int idBarInfo;
+        ///// <summary>
+        ///// used for margin summary values
+        ///// </summary>
+        //public Instrument_Summary_Values instrument_summary_values = new Instrument_Summary_Values();
 
-    //    public int idPortfolioGroup;
+        ///// <summary>
+        ///// this contains the underlying code used to send the option to the exchange
+        ///// </summary>
+        //public Dictionary<string, ProductCodes> span_cqg_codes_dictionary
+        //    = new Dictionary<string, ProductCodes>();
 
-    //    public int idInstrumentGroup;
-    //    public String instrumentGroup;
+        //public Dictionary<string, ProductCodes> product_codes_dictionary_pfckey
+        //    = new Dictionary<string, ProductCodes>();
+    }
 
-    //    public double tickSize;
-    //    public double tickDisplay;
+    [BsonIgnoreExtraElements]
+    public class Exchange_mongo
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId _id { get; set; }
 
-    //    /// <summary>
-    //    /// The tick display for TT used to multiply, usually just value of 1
-    //    /// but for example soybeans price is sent from CQG and SPAN in cents 904.25
-    //    /// and optionTickDisplay is 2 makes value 9042
-    //    /// TT needs price sent in dollars, so this price is 9.042 this value is 0.001
-    //    /// </summary>
-    //    //public double tickDisplayTT;
+        public long idexchange { get; set; }
 
-    //    public double tickValue;
-    //    public int margin;
-    //    public int timeShiftHours;
-    //    public double commissionPerContract;
+        public string exchange { get; set; }
 
+        public string spanexchangesymbol { get; set; }
 
-    //    public bool displayInStrategySummary;
+        public string spanexchwebapisymbol { get; set; }
 
-    //    public bool continueWithOptimize;
+        public string tradingtechnologies_exchange { get; set; }
 
-    //    public bool configuredSeries;
-    //    public int idcontractseriescfg;
+        public string tradingtechnologies_gateway { get; set; }
+    }
 
-    //    public double optionStrikeIncrement;
+    [BsonIgnoreExtraElements]
+    public class Futures_contract_settlements_tmldb
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId _id { get; set; }
 
-    //    public int stopType;
+        public DateTime date { get; set; }
 
-    //    public int limitTickOffset;
+        public long idcontract { get; set; }
 
-    //    public double optionTickSize;
-    //    public double optionTickDisplay;
+        public double settlement { get; set; }
 
-    //    /// <summary>
-    //    /// The option tick display for TT used to multiply, usually just value of 1
-    //    /// but for example soybeans price is sent from CQG and SPAN in cents 904.25
-    //    /// and optionTickDisplay is 2 makes value 9042
-    //    /// TT needs price sent in dollars, so this price is 9.042 this value is 0.001
-    //    /// </summary>
-    //    //public double optionTickDisplayTT;
+        public long openinterest { get; set; }
 
-    //    public double optionTickValue;
-    //    public double optionStrikeDisplay;
-    //    public double optionStrikeDisplayTT;
-
-    //    public double optionADMStrikeDisplay;
-    //    public double admOptionFtpFileStrikeDisplay;
-
-    //    public double admFuturePriceFactor;
-    //    public double admOptionPriceFactor;
-
-
-    //    public double secondaryOptionTickSize;
-    //    public double secondaryOptionTickValue;
-
-    //    public double secondaryoptiontickdisplay;
-
-    //    public double secondaryOptionTickSizeRule;
-
-    //    public DateTime customDayBoundaryTime;
-    //    public bool useDailyCustomData;
-    //    public int decisionOffsetMinutes;
-
-    //    public DateTime optionSpreadStart;
-
-    //    public String admCode;
-    //    public String admExchangeCode;
-
-    //    public String exchange;
-    //    public String spanExchangeSymbol;
-    //    public String spanExchWebAPISymbol;
-    //    public String tradingTechnologiesExchange;
-    //    public String tradingTechnologiesGateway;
-
-    //    public String spanFutureCode;
-    //    public String spanOptionCode;
-
-    //    //public List<TradeCalendarData> tradeCalendarData;
-    //    //public TradeCalendarDescription[] tradeCalendarDescription;
-
-    //    public string coreAPImarginId;
-    //    public double coreAPIinitialMargin;
-    //    public double coreAPImaintenanceMargin;
-
-    //    public string coreAPI_FCM_marginId;
-    //    public double coreAPI_FCM_initialMargin;
-    //    public double coreAPI_FCM_maintenanceMargin;
-
-    //    public bool substituteSymbolEOD;
-    //    public string instrumentSymbolPreEOD;
-    //    public string instrumentSymbolEOD;
-
-
-
-    //    public DateTime settlementTime;
-
-
-
-    //    public bool eodAnalysisAtInstrument;
-    //    public DateTime settlementDateTimeMarker;
-    //    //public bool reachedSettlementDateTimeMarker;
-
-    //};
+        public long volume { get; set; }
+    }
 }

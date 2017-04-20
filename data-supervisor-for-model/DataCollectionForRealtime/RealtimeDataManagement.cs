@@ -64,23 +64,35 @@ namespace DataSupervisorForModel
 
             DataCollectionLibrary.ResetAndInitializeData();
 
+
+            DataCollectionLibrary.instrumentList 
+                = MongoDBConnectionAndSetup.GetInstrumentInfoListFromMongo();
+
+            DataCollectionLibrary.instrumentHashTable 
+                = DataCollectionLibrary.instrumentList.ToDictionary(x => x.idinstrument, x => x);
+
+
+            DataCollectionLibrary.contractHashTableByInstId
+                = MongoDBConnectionAndSetup.GetContractListFromMongo_tmldb_v2(
+                    DataCollectionLibrary.instrumentList, DateTime.Today);
+
             //MongoDBConnectionAndSetup mongoDBConnectionAndSetup = new MongoDBConnectionAndSetup();
             //mongoDBConnectionAndSetup.connectToMongoDB();
             //mongoDBConnectionAndSetup.createDocument();
             //mongoDBConnectionAndSetup.dropCollection();
 
-            var contextTMLDB = new DataClassesTMLDBDataContext(
-                System.Configuration.ConfigurationManager.ConnectionStrings["TMLDBConnectionString"].ConnectionString);
+            //var contextTMLDB = new DataClassesTMLDBDataContext(
+            //    System.Configuration.ConfigurationManager.ConnectionStrings["TMLDBConnectionString"].ConnectionString);
 
-            TMLDBReader TMLDBReader = new TMLDBReader(contextTMLDB);
+            //TMLDBReader TMLDBReader = new TMLDBReader(contextTMLDB);
 
 
 
-            bool gotInstrumentList = TMLDBReader.GetTblInstruments(ref DataCollectionLibrary.instrumentHashTable,
-                    ref DataCollectionLibrary.instrumentList);
+            //bool gotInstrumentList = TMLDBReader.GetTblInstruments(ref DataCollectionLibrary.instrumentHashTable,
+            //        ref DataCollectionLibrary.instrumentList);
 
-            bool gotContractList = TMLDBReader.GetContracts(ref DataCollectionLibrary.instrumentList,
-                ref DataCollectionLibrary.contractHashTableByInstId, DateTime.Today);
+            //bool gotContractList = TMLDBReader.GetContracts(ref DataCollectionLibrary.instrumentList,
+            //    ref DataCollectionLibrary.contractHashTableByInstId, DateTime.Today);
 
 
             //Dictionary<long, Contract> contractListFromMongo = MongoDBConnectionAndSetup.getContractListFromMongo();
@@ -97,14 +109,22 @@ namespace DataSupervisorForModel
                     //     contractListFromMongo.Remove(contract.idcontract);
                     // }
 
-                    Instrument instrument = DataCollectionLibrary.instrumentHashTable[contract.idinstrument];
+                    Instrument_mongo instrument = DataCollectionLibrary.instrumentHashTable[contract.idinstrument];
 
-                    DateTime previousDateCollectionStart = TMLDBReader.GetContractPreviousDateTime(contract.idcontract)
-                        .AddHours(
-                            instrument.customdayboundarytime.Hour)
-                        .AddMinutes(
-                            instrument.customdayboundarytime.Minute)
-                        .AddMinutes(1);
+                    DateTime previousDateCollectionStart 
+                        = MongoDBConnectionAndSetup.GetContractPreviousDateTimeFromMongo(contract.idcontract)
+                            .AddHours(
+                                instrument.customdayboundarytime.Hour)
+                            .AddMinutes(
+                                instrument.customdayboundarytime.Minute)
+                            .AddMinutes(1);
+
+                    //DateTime previousDateCollectionStart = TMLDBReader.GetContractPreviousDateTime(contract.idcontract)
+                    //    .AddHours(
+                    //        instrument.customdayboundarytime.Hour)
+                    //    .AddMinutes(
+                    //        instrument.customdayboundarytime.Minute)
+                    //    .AddMinutes(1);
 
                     contract.previousDateTimeBoundaryStart = previousDateCollectionStart;
 
@@ -557,31 +577,31 @@ namespace DataSupervisorForModel
 
         private void expressionListDataGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            try
-            {
-                if (!Convert.IsDBNull(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
-                    && e.ColumnIndex == 2)
-                {
-                    if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
-                        == Convert.ToInt16(STALE_DATA_INDICATORS.UP_TO_DATE))
-                    {
-                        e.CellStyle.BackColor = Color.Green;
-                    }
-                    else if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
-                        == Convert.ToInt16(STALE_DATA_INDICATORS.MILDLY_STALE))
-                    {
-                        e.CellStyle.BackColor = Color.Yellow;
-                    }
-                    else
-                    {
-                        e.CellStyle.BackColor = Color.Red;
-                    }
-                }
-            }
-            catch(Exception ee)
-            {
-                Console.WriteLine(ee.ToString());
-            }
+            //try
+            //{
+            //    if (!Convert.IsDBNull(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+            //        && e.ColumnIndex == 2)
+            //    {
+            //        if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+            //            == Convert.ToInt16(STALE_DATA_INDICATORS.UP_TO_DATE))
+            //        {
+            //            e.CellStyle.BackColor = Color.Green;
+            //        }
+            //        else if (Convert.ToInt16(DataCollectionLibrary.contractSummaryGridListDataTable.Rows[e.RowIndex][2])
+            //            == Convert.ToInt16(STALE_DATA_INDICATORS.MILDLY_STALE))
+            //        {
+            //            e.CellStyle.BackColor = Color.Yellow;
+            //        }
+            //        else
+            //        {
+            //            e.CellStyle.BackColor = Color.Red;
+            //        }
+            //    }
+            //}
+            //catch (Exception ee)
+            //{
+            //    Console.WriteLine(ee.ToString());
+            //}
         }
     }
 }

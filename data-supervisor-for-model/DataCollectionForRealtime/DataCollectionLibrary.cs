@@ -25,13 +25,13 @@ namespace DataSupervisorForModel
         static internal Dictionary<long, OptionSpreadExpression> optionSpreadExpressionHashTable_keycontractId;
             //= new Dictionary<long, OptionSpreadExpression>();
 
-        static internal Dictionary<long, Instrument> instrumentHashTable;
+        static internal Dictionary<long, Instrument_mongo> instrumentHashTable;
             //= new Dictionary<long, Instrument>();
 
         static internal Dictionary<long, List<Contract>> contractHashTableByInstId;
             //= new Dictionary<long, List<Contract>>();
 
-        static internal List<Instrument> instrumentList;
+        static internal List<Instrument_mongo> instrumentList;
             //= new List<Instrument>();
 
         static internal DataTable contractSummaryGridListDataTable = new DataTable();
@@ -53,12 +53,12 @@ namespace DataSupervisorForModel
                 = new Dictionary<long, OptionSpreadExpression>();
 
             instrumentHashTable
-                = new Dictionary<long, Instrument>();
+                = new Dictionary<long, Instrument_mongo>();
 
             contractHashTableByInstId
                 = new Dictionary<long, List<Contract>>();
 
-            instrumentList = new List<Instrument>();
+            instrumentList = new List<Instrument_mongo>();
 
     }
 

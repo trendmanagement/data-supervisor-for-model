@@ -157,7 +157,6 @@
             this.expressionListDataGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.expressionListDataGrid.Size = new System.Drawing.Size(293, 364);
             this.expressionListDataGrid.TabIndex = 7;
-            this.expressionListDataGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.expressionListDataGrid_CellFormatting);
             // 
             // ConnectionStatus
             // 
@@ -197,6 +196,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.mainRealtimeMenuStrip);
             this.Controls.Add(this.statusStripOptionMonitor);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "RealtimeDataManagement";
             this.Text = "RealtimeDataManagement";
             this.Load += new System.EventHandler(this.RealtimeDataManagement_Load);

@@ -14,41 +14,51 @@ namespace DataSupervisorForModel
 {
     static class MongoDBConnectionAndSetup
     {
-        private static IMongoClient _client;
-        private static IMongoDatabase _database;
+        private static IMongoClient _realtime_client;
+        private static IMongoDatabase _realtime_database;
 
         private static IMongoCollection<Contract> _contractCollection;
         private static IMongoCollection<OHLCData> _futureBarCollection;
-        //private static IMongoCollection<OHLCData_localtime> _futureBarCollection_localtime;
 
 
+        private static IMongoClient _tmldb_v2_client;
+        private static IMongoDatabase _tmldb_v2_database;
 
+        private static IMongoCollection<Instrument_mongo> _instrumentCollection_tmldb_v2;
+        private static IMongoCollection<Contract_mongo_tmldb> _contractCollection_tmldb_v2;
+        private static IMongoCollection<Futures_contract_settlements_tmldb> _futureContractSettlements_tmldb_v2;
 
-
-        //private static string mongoDataCollection;
 
         static MongoDBConnectionAndSetup()
         {
-            //_client = new MongoClient(
-            //    System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
+            _realtime_client = new MongoClient(
+                System.Configuration.ConfigurationManager.ConnectionStrings["Mongo_Realtime_MinuteBar_Connection"].ConnectionString);
 
+            _realtime_database = _realtime_client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["Mongo_Realtime_DbName"]);
 
+            _contractCollection = _realtime_database.GetCollection<Contract>(
+                System.Configuration.ConfigurationManager.AppSettings["Mongo_Realtime_ContractCollection"]);
 
-            _client = new MongoClient(
-                System.Configuration.ConfigurationManager.ConnectionStrings["DefaultMongoConnection"].ConnectionString);
-
-
-            _database = _client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["MongoDbName"]);
-
-
-            _contractCollection = _database.GetCollection<Contract>(
-                System.Configuration.ConfigurationManager.AppSettings["MongoContractCollection"]);
-
-            _futureBarCollection = _database.GetCollection<OHLCData>(
-                System.Configuration.ConfigurationManager.AppSettings["MongoFutureBarCollection"]);
+            _futureBarCollection = _realtime_database.GetCollection<OHLCData>(
+                System.Configuration.ConfigurationManager.AppSettings["Mongo_Realtime_FutureBarCollection"]);
 
             var keys = Builders<OHLCData>.IndexKeys.Ascending("idcontract").Descending("bartime");
             _futureBarCollection.Indexes.CreateOneAsync(keys);
+
+
+            _tmldb_v2_client = new MongoClient(
+                System.Configuration.ConfigurationManager.ConnectionStrings["Mongo_tmldb_v2"].ConnectionString);
+
+            _tmldb_v2_database = _tmldb_v2_client.GetDatabase(System.Configuration.ConfigurationManager.AppSettings["Mongo_tmldb_v2_DbName"]);
+
+            _instrumentCollection_tmldb_v2 = _tmldb_v2_database.GetCollection<Instrument_mongo>(
+                System.Configuration.ConfigurationManager.AppSettings["Mongo_tmldb_v2_InstrumentCollection"]);
+
+            _contractCollection_tmldb_v2 = _tmldb_v2_database.GetCollection<Contract_mongo_tmldb>(
+                System.Configuration.ConfigurationManager.AppSettings["Mongo_tmldb_v2_ContractCollection"]);
+
+            _futureContractSettlements_tmldb_v2 = _tmldb_v2_database.GetCollection<Futures_contract_settlements_tmldb>(
+                System.Configuration.ConfigurationManager.AppSettings["Mongo_tmldb_v2_FutureContractSettlementsCollection"]);
 
 
             //_futureBarCollection_localtime = _database.GetCollection<OHLCData_localtime>(
@@ -63,14 +73,14 @@ namespace DataSupervisorForModel
         //        System.Configuration.ConfigurationManager.AppSettings["MongoCollection"]); }
         //}
 
-        internal static async Task dropCollection()
-        {
-            await _database.DropCollectionAsync(
-                System.Configuration.ConfigurationManager.AppSettings["MongoContractCollection"]);
+        //internal static async Task dropCollection()
+        //{
+        //    await _realtime_database.DropCollectionAsync(
+        //        System.Configuration.ConfigurationManager.AppSettings["MongoContractCollection"]);
 
-            await _database.DropCollectionAsync(
-                System.Configuration.ConfigurationManager.AppSettings["MongoFutureBarCollection"]);
-        }
+        //    await _realtime_database.DropCollectionAsync(
+        //        System.Configuration.ConfigurationManager.AppSettings["MongoFutureBarCollection"]);
+        //}
 
         internal static async Task UpdateBardataToMongo(OHLCData barToUpsert)
         {
@@ -178,13 +188,63 @@ namespace DataSupervisorForModel
         }
 
 
-        internal static Dictionary<long, Contract> GetContractListFromMongo()
+        internal static Dictionary<long, List<Contract>> GetContractListFromMongo_tmldb_v2(List<Instrument_mongo> instrumentList,
+            //ref Dictionary<long, List<Contract>> contractHashTableByInstId,
+            DateTime todaysDate)
         {
-            List<Contract> mongoContractList = _contractCollection.Find(_ => true).ToList();
+            //List<Contract> mongoContractList = _contractCollection_tmldb_v2.Find(_ => true).ToList();
 
-            var mongoContractDictionary = mongoContractList.ToDictionary(x => x.idcontract, x => x);
+            //var mongoContractDictionary = mongoContractList.ToDictionary(x => x.idcontract, x => x);
 
-            return mongoContractDictionary;
+            //return mongoContractDictionary;
+
+            Dictionary<long, List<Contract>> contractHashTableByInstId = new Dictionary<long, List<Contract>>();
+
+            Mapper.Initialize(cfg => cfg.CreateMap<Contract_mongo_tmldb, Contract>());
+
+            foreach (Instrument_mongo instrument in instrumentList)
+            {
+                //_contractCollection_tmldb_v2
+
+                var builder = Builders<Contract_mongo_tmldb>.Filter;
+                var filter = builder.And(
+                        builder.Eq("idinstrument", instrument.idinstrument),
+                        builder.Gte("expirationdate", todaysDate)
+                    );
+
+                List<Contract_mongo_tmldb> contracts = _contractCollection_tmldb_v2.Find(filter)
+                    .Sort(Builders<Contract_mongo_tmldb>
+                        .Sort.Ascending("expirationdate")).Limit(4).ToList<Contract_mongo_tmldb>();
+
+                foreach (Contract_mongo_tmldb contractFromDb in contracts)
+                {
+                    Contract contract = Mapper.Map<Contract>(contractFromDb);
+
+                    Console.WriteLine(contract.idcontract + " " + contract.idinstrument + " " + contract.contractname
+                        + " " + contract.expirationdate);
+
+                    if (contractHashTableByInstId.ContainsKey(contract.idinstrument))
+                    {
+                        contractHashTableByInstId[contract.idinstrument].Add(contract);
+                    }
+                    else
+                    {
+                        List<Contract> contractList = new List<Contract>();
+
+                        contractList.Add(contract);
+
+                        contractHashTableByInstId.Add(contract.idinstrument, contractList);
+                    }
+
+
+                }
+
+
+
+
+            }
+
+            return contractHashTableByInstId;
         }
 
         internal static void RemoveExtraContracts(Dictionary<long, Contract> contractListFromMongo)
@@ -211,7 +271,7 @@ namespace DataSupervisorForModel
         /// <param name="instrument"></param>
         /// <returns>OptionSpreadExpression</returns>
 
-        internal static OptionSpreadExpression GetContractFromMongo(Contract contract, Instrument instrument)
+        internal static OptionSpreadExpression GetContractFromMongo(Contract contract, Instrument_mongo instrument)
         {
 
             OptionSpreadExpression ose = new OptionSpreadExpression();
@@ -294,84 +354,54 @@ namespace DataSupervisorForModel
         }
 
 
-        //internal static async Task createDocument()
-        //{
-        //    var document = new BsonDocument
-        //    {
-        //        { "address" , new BsonDocument
-        //            {
-        //                { "street", "2 Avenue" },
-        //                { "zipcode", "10075" },
-        //                { "building", "1480" },
-        //                { "coord", new BsonArray { 73.9557413, 40.7720266 } }
-        //            }
-        //        },
-        //        { "borough", "Manhattan" },
-        //        { "cuisine", "Italian" },
-        //        { "grades", new BsonArray
-        //            {
-        //                new BsonDocument
-        //                {
-        //                    { "date", new DateTime(2014, 10, 1, 0, 0, 0, DateTimeKind.Utc) },
-        //                    { "grade", "A" },
-        //                    { "score", 11 }
-        //                },
-        //                new BsonDocument
-        //                {
-        //                    { "date", new DateTime(2014, 1, 6, 0, 0, 0, DateTimeKind.Utc) },
-        //                    { "grade", "B" },
-        //                    { "score", 17 }
-        //                }
-        //            }
-        //        },
-        //        { "name", "Vella" },
-        //        { "restaurant_id", "41704620" }
-        //    };
-
-        //    var collection = _database.GetCollection<BsonDocument>("restaurants");
-        //    await collection.InsertOneAsync(document);
-        //}
-
-        internal static async Task getDocument()
+        internal static List<Instrument_mongo> GetInstrumentInfoListFromMongo()
         {
-            var collection = _database.GetCollection<BsonDocument>("restaurants");
-
-            //var docs = collection.Find(new BsonDocument()).ToListAsync().GetAwaiter().GetResult();
-
-            //foreach(var x in docs)
-            //{
-            //    Console.WriteLine(x.cqgSymbol);
-            //}
-
-
-            var filter = new BsonDocument();
-            var count = 0;
-            using (var cursor = await collection.FindAsync(filter))
+            try
             {
-                while (await cursor.MoveNextAsync())
-                {
-                    var batch = cursor.Current;
-                    foreach (var document in batch)
-                    {
-                        // process document
-                        Console.WriteLine(document);
+                var builder = Builders<Instrument_mongo>.Filter;
+                var filter = builder.And(
+                    builder.Or(
+                        builder.Eq("optionenabled",2),
+                        builder.Eq("optionenabled", 4),
+                        builder.Eq("optionenabled", 8)
+                        ),
+                    builder.Ne("idinstrument",1022)
+                    );
 
+                // x => x.idinstrument, instrumentIdList
 
-
-                        //var x = BsonSerializer.Deserialize<(document);
-
-                        //var x = MongoDB.Bson.BsonDocument.
-
-                        //JsonSerializer serializer = new JsonSerializer();
-
-                        //TestExpression x = serializer.Deserialize<TestExpression>(document);
-
-                        //Console.WriteLine(document["cqgSymbol"]);
-
-                        count++;
-                    }
-                }
+                return _instrumentCollection_tmldb_v2.Find(filter).ToList();
+            }
+            catch
+            {
+                return new List<Instrument_mongo>();
             }
         }
+
+        internal static DateTime GetContractPreviousDateTimeFromMongo(long idcontract)
+        {
+            try
+            {
+                var builder = Builders<Futures_contract_settlements_tmldb>.Filter;
+                var filter = builder.Eq("idcontract", idcontract);
+
+                Futures_contract_settlements_tmldb settlement = _futureContractSettlements_tmldb_v2.Find(filter)
+                        .Sort(Builders<Futures_contract_settlements_tmldb>
+                            .Sort.Descending("date")).First();
+
+                if (settlement != null)
+                {
+                    return settlement.date;
+                }
+            }
+            catch
+            {
+                return DateTime.Today.AddDays(-1);
+            }
+
+            return DateTime.Today.AddDays(-1);
+        }
+
+
     }
 }
