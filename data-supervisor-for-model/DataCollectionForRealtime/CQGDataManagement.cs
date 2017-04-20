@@ -309,12 +309,12 @@ namespace DataSupervisorForModel
                     new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, currentTime.Minute, 0))
                     >= 0)
                 {
-                    optionSpreadExpression.CQGBarQueryStart = optionSpreadExpression.CQGBarQueryStart.AddMinutes(-1);
+                    optionSpreadExpression.CQGBarQueryStart = currentTime.AddMinutes(-1);
                 }
 
                 DateTime rangeStart = optionSpreadExpression.CQGBarQueryStart;
 
-                DateTime rangeEnd = m_CEL.Environment.LineTime;
+                DateTime rangeEnd = currentTime;
 
                 timedBarsRequest.RangeStart = rangeStart;
 
