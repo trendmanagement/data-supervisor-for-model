@@ -27,7 +27,7 @@ namespace DataSupervisorForModel
 
         private Thread subscriptionThread;
         private bool continueSubscriptionRequest = true;
-        private const int SUBSCRIPTION_TIMEDELAY_CONSTANT = 125;
+        private const int SUBSCRIPTION_TIMEDELAY_CONSTANT = 250;
 
         private RealtimeDataManagement realtimeDataManagement;
 

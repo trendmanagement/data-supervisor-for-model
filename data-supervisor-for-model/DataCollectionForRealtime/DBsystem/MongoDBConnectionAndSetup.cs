@@ -192,11 +192,8 @@ namespace DataSupervisorForModel
             //ref Dictionary<long, List<Contract>> contractHashTableByInstId,
             DateTime todaysDate)
         {
-            //List<Contract> mongoContractList = _contractCollection_tmldb_v2.Find(_ => true).ToList();
+            const int NUMBER_OF_FORWARD_CONTRACTS = 3;
 
-            //var mongoContractDictionary = mongoContractList.ToDictionary(x => x.idcontract, x => x);
-
-            //return mongoContractDictionary;
 
             Dictionary<long, List<Contract>> contractHashTableByInstId = new Dictionary<long, List<Contract>>();
 
@@ -214,7 +211,7 @@ namespace DataSupervisorForModel
 
                 List<Contract_mongo_tmldb> contracts = _contractCollection_tmldb_v2.Find(filter)
                     .Sort(Builders<Contract_mongo_tmldb>
-                        .Sort.Ascending("expirationdate")).Limit(4).ToList<Contract_mongo_tmldb>();
+                        .Sort.Ascending("expirationdate")).Limit(NUMBER_OF_FORWARD_CONTRACTS).ToList<Contract_mongo_tmldb>();
 
                 foreach (Contract_mongo_tmldb contractFromDb in contracts)
                 {
