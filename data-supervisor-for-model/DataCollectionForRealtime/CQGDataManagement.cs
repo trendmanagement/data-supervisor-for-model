@@ -410,10 +410,10 @@ namespace DataSupervisorForModel
 
         private void m_CEL_TimedBarsAdded(CQG.CQGTimedBars cqg_TimedBarsIn)
         {
-            AddTimedBars(cqg_TimedBarsIn);
+            AddTimedBars(cqg_TimedBarsIn, true);
         }
 
-        private void AddTimedBars(CQG.CQGTimedBars cqg_TimedBarsIn)
+        private void AddTimedBars(CQG.CQGTimedBars cqg_TimedBarsIn, bool resolved = false)
         {
             try
             {
@@ -452,7 +452,7 @@ namespace DataSupervisorForModel
                         }
 
 
-                        List<OHLCData> barsToAdd = new List<OHLCData>();
+                        //List<OHLCData> barsToAdd = new List<OHLCData>();
 
                         int lastIdxAdded = cqg_TimedBarsIn.Count - 1;
 
@@ -460,7 +460,7 @@ namespace DataSupervisorForModel
 
                         ose.lastIdxToAdd = lastIdxAdded;
 
-                        bool firstBarAdded = true;
+                        //bool firstBarAdded = true;
 
                         while (idxToAdd <= lastIdxAdded)
                         {
@@ -584,16 +584,16 @@ namespace DataSupervisorForModel
                             }
 
 
-                            if (!firstBarAdded)  // && !ohlcData.errorbar)
-                            {
-                                barsToAdd.Add(ohlcData);
-                            }
+                            //if (!firstBarAdded)  // && !ohlcData.errorbar)
+                            //{
+                            //    barsToAdd.Add(ohlcData);
+                            //}
 
                             idxToAdd++;
 
-                            if (firstBarAdded)
+                            //if (firstBarAdded)
                             {
-                                firstBarAdded = false;
+                                //firstBarAdded = false;
 
                                 //if (!ohlcData.errorbar)
                                 {
@@ -603,10 +603,10 @@ namespace DataSupervisorForModel
                             }
                         }
 
-                        if (barsToAdd.Count > 0)
-                        {
-                            Task t2 = MongoDBConnectionAndSetup.AddDataMongo(barsToAdd);
-                        }
+                        //if (barsToAdd.Count > 0)
+                        //{
+                        //    Task t2 = MongoDBConnectionAndSetup.AddDataMongo(barsToAdd);
+                        //}
 
                         ose.lastTimeFuturePriceUpdated =
                                         cqg_TimedBarsIn.EndTimestamp;

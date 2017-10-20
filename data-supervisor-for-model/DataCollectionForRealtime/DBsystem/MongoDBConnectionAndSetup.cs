@@ -43,7 +43,9 @@ namespace DataSupervisorForModel
                 System.Configuration.ConfigurationManager.AppSettings["Mongo_Realtime_FutureBarCollection"]);
 
             var keys = Builders<OHLCData>.IndexKeys.Ascending("idcontract").Descending("bartime");
-            _futureBarCollection.Indexes.CreateOneAsync(keys);
+            CreateIndexOptions cio = new CreateIndexOptions();
+            cio.Unique = true;
+            _futureBarCollection.Indexes.CreateOneAsync(keys, cio);
 
 
             _tmldb_v2_client = new MongoClient(
