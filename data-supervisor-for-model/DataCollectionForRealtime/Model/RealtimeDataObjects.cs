@@ -173,7 +173,7 @@ namespace DataSupervisorForModel
 
         public bool continueUpdating = true;
 
-        public bool normalSubscriptionRequest = false;
+        //public bool normalSubscriptionRequest = false;
         //public bool substituteSubscriptionRequest = false;
 
         //public bool setSubscriptionLevel = false;
@@ -185,16 +185,16 @@ namespace DataSupervisorForModel
 
         public DateTime lastTimeFuturePriceUpdated; //is separate b/c can get time stamp off of historical bars
 
-        public OHLCData transactionBar;
-        public DateTime transactionTime;
-        public bool reachedTransactionBar = false;
-        public bool reachedBarAfterTransactionBar = false;
+        //public OHLCData transactionBar;
+        //public DateTime transactionTime;
+        //public bool reachedTransactionBar = false;
+        //public bool reachedBarAfterTransactionBar = false;
 
 
-        public OHLCData decisionBar;
-        public DateTime decisionTime;
-        public bool reachedDecisionBar = false;
-        public bool reachedBarAfterDecisionBar = false;
+        //public OHLCData decisionBar;
+        //public DateTime decisionTime;
+        //public bool reachedDecisionBar = false;
+        //public bool reachedBarAfterDecisionBar = false;
 
 
         public double settlement;

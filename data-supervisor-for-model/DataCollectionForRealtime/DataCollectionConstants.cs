@@ -10,6 +10,8 @@ namespace DataSupervisorForModel
     {
         public const long CQG_DATA_ERROR_CODE = 2147483648;
 
+        public const int SUBSCRIPTION_TIMEDELAY_CONSTANT = 250;
+
         //public const int MINUTES_IN_DAY = 1440;
 
         //public const double EPSILON = 0.000000001;

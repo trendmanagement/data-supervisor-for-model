@@ -55,17 +55,29 @@ namespace DataSupervisorForModel
         /// </summary>
         public class InSetupAndConnectionMode
         {
-            public bool value = true;
+            public bool setup_mode_value = true;
+
+            public bool subscription_mode_value = false;
         }
 
-        internal static void Set_InSetupAndConnectionMode(bool valueIn)
+        internal static void Set_setup_connection_mode_value(bool valueIn)
         {
             lock (_InSetupAndConnectionMode)
             {
-                _InSetupAndConnectionMode.value = valueIn;
+                _InSetupAndConnectionMode.setup_mode_value = valueIn;
 
             }
         }
+
+        internal static void Set_subscription_mode_value(bool valueIn)
+        {
+            lock (_InSetupAndConnectionMode)
+            {
+                _InSetupAndConnectionMode.subscription_mode_value = valueIn;
+
+            }
+        }
+
 
 
         public static void InitAsync(string msg = null)

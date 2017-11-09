@@ -59,8 +59,9 @@
             this.btnCallAllInstruments.Image = ((System.Drawing.Image)(resources.GetObject("btnCallAllInstruments.Image")));
             this.btnCallAllInstruments.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnCallAllInstruments.Name = "btnCallAllInstruments";
-            this.btnCallAllInstruments.Size = new System.Drawing.Size(46, 20);
-            this.btnCallAllInstruments.Text = "Call All";
+            this.btnCallAllInstruments.Size = new System.Drawing.Size(77, 20);
+            this.btnCallAllInstruments.Text = "Subscribe All";
+            this.btnCallAllInstruments.ToolTipText = "Subscribe All";
             this.btnCallAllInstruments.Click += new System.EventHandler(this.btnCallAllInstruments_Click);
             // 
             // toolStripSeparator17

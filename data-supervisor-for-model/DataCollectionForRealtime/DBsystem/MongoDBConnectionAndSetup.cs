@@ -72,8 +72,7 @@ namespace DataSupervisorForModel
         //public static IMongoCollection<Mongo_OptionSpreadExpression> MongoDataCollection
         //{
         //    get { return _database.GetCollection<Mongo_OptionSpreadExpression>(
-        //        System.Configuration.ConfigurationManager.AppSettings["MongoCollection"]); }
-        //}
+            //}
 
         //internal static async Task dropCollection()
         //{
@@ -137,9 +136,21 @@ namespace DataSupervisorForModel
                             .Set("volume", barToUpsert.volume)
                             .Set("errorbar", barToUpsert.errorbar);
 
-                //await _futureBarCollection.ReplaceOne<OHLCData>(filterForUpdate, barToUpsert);
-                await _futureBarCollection.UpdateOneAsync(filterForUpdate, update,
+                //await _futureBarCollection.UpdateOneAsync(filterForUpdate, update,
+                //        new UpdateOptions { IsUpsert = true });
+
+                try
+                {
+                    await _futureBarCollection.UpdateOneAsync(filterForUpdate, update,
                         new UpdateOptions { IsUpsert = true });
+                }
+                catch (MongoWriteException e)
+                {
+                    //AsyncTaskListener.LogMessageAsync(e.ToString());
+                    AsyncTaskListener.LogMessageAsync($"UpsertBardataToMongo Trying to resend single update {barToUpsert.bartime} {barToUpsert.idcontract}");
+
+                    UpsertBardataToMongo(barToUpsert);
+                }
             }
             catch (Exception e)
             {
@@ -149,6 +160,69 @@ namespace DataSupervisorForModel
 
                 //AsyncTaskListener.UpdateCQGDataManagementAsync();
             }
+        }
+
+        internal static async Task UpsertManyDataMongo(List<OHLCData> barsToAdd)
+        {
+            try
+            {
+                var bulkOps = new WriteModel<OHLCData>[barsToAdd.Count];
+
+                int counter = 0;
+                foreach (OHLCData barToUpsert in barsToAdd)
+                {
+                    var builder = Builders<OHLCData>.Filter;
+
+                    var filterForUpdate = builder.And(builder.Eq("idcontract", barToUpsert.idcontract),
+                            builder.Eq("bartime", barToUpsert.bartime));
+
+                    var update = Builders<OHLCData>.Update
+                                //.SetOnInsert("_id", barToUpsert._id)
+                                .SetOnInsert("idcontract", barToUpsert.idcontract)
+                                .SetOnInsert("bartime", barToUpsert.bartime)
+                                .Set("open", barToUpsert.open)
+                                .Set("high", barToUpsert.high)
+                                .Set("low", barToUpsert.low)
+                                .Set("close", barToUpsert.close)
+                                .Set("volume", barToUpsert.volume)
+                                .Set("errorbar", barToUpsert.errorbar);
+
+                    var upsertOne = new UpdateOneModel<OHLCData>(filterForUpdate, update) { IsUpsert = true };
+                    bulkOps[counter] = upsertOne;
+                    //collection.BulkWrite(bulkOps);
+
+                    counter++;
+                }
+
+
+                //var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
+                //bulkOps.Add(upsertOne);
+
+                var options = new BulkWriteOptions { IsOrdered = false };
+
+                try
+                {
+                    await _futureBarCollection.BulkWriteAsync(bulkOps, options);
+                }
+                catch (MongoBulkWriteException e)
+                {
+                    //AsyncTaskListener.LogMessageAsync(e.ToString());
+                    AsyncTaskListener.LogMessageAsync($"UpsertManyDataMongo Trying to resend bulkwrite barsToAdd count {barsToAdd.Count}");
+
+                    UpsertManyDataMongo(barsToAdd);
+                }
+            }
+            catch (Exception e)
+            {
+                MongoFailureMethod(e.ToString());
+
+                //AsyncTaskListener.LogMessageAsync(e.ToString());
+
+                //asynctasklistener.updatecqgdatamanagementasync();
+
+                //asynctasklistener.logmessageasync("cqg api connection has been stopped");
+            }
+
         }
 
         internal static async Task AddDataMongo(List<OHLCData> barsToAdd)
@@ -172,19 +246,23 @@ namespace DataSupervisorForModel
             
         }
 
-        internal static void MongoFailureMethod(string errorMessage)
+        internal static void MongoFailureMethod(string errorMessage = "")
         {
             lock (AsyncTaskListener._InSetupAndConnectionMode)
             {
-                if (!AsyncTaskListener._InSetupAndConnectionMode.value)
+                if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
                 {
-                    AsyncTaskListener.Set_InSetupAndConnectionMode(true);
+                    AsyncTaskListener.Set_setup_connection_mode_value(true);
 
-                    AsyncTaskListener.LogMessageAsync(errorMessage);
+                    //AsyncTaskListener.LogMessageAsync(errorMessage);
+
+                    AsyncTaskListener.LogMessageAsync($"CQG API Connection restarted. \n{errorMessage}. \nThe program is attempting a complete recycle.");
 
                     AsyncTaskListener.UpdateCQGDataManagementAsync();
 
-                    AsyncTaskListener.LogMessageAsync("CQG API Connection has been Stopped. \nThere has been an error connecting to the MongoDB. \nThe program is attempting a complete recycle.");
+                    
+
+                    AsyncTaskListener.Set_setup_connection_mode_value(false);
                 }
             }
         }
@@ -301,7 +379,7 @@ namespace DataSupervisorForModel
                     //ose.futureBarData = _futureBarCollection.Find(filterForBars).ToList<OHLCData>();
                 }
 
-                ose.normalSubscriptionRequest = true;
+                //ose.normalSubscriptionRequest = true;
 
                 ose.instrument = instrument;
 
