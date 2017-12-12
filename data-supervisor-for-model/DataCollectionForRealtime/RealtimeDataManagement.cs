@@ -218,7 +218,7 @@ namespace DataSupervisorForModel
                 if (current.DayOfWeek != DayOfWeek.Saturday
                     && current.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    if(dataResetTime[0] - current.TimeOfDay > TimeSpan.Zero)
+                    if (dataResetTime[0] - current.TimeOfDay > TimeSpan.Zero)
                     {
                         dateResetIndex = 0;
                     }
@@ -232,7 +232,7 @@ namespace DataSupervisorForModel
                     }
                 }
 
-                if(resetConnection && dateResetIndex < dataResetTime.Count)
+                if (resetConnection && dateResetIndex < dataResetTime.Count)
                 {
                     backgroundWorkerThread.ReportProgress(0, true);
                 }
@@ -280,71 +280,71 @@ namespace DataSupervisorForModel
                     bool connectionRefreshUpdate = (bool)argsObj.UserState;
 
                     //Console.WriteLine("The Elapsed event was raised at {0}", DateTime.Now);
-                    if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
+                    //if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
+                    //{
+                    if (connectionRefreshUpdate)
                     {
-                        if (connectionRefreshUpdate)
-                        {
-                            MongoDBConnectionAndSetup.MongoFailureMethod("CQG Timer Restart");
-                        }
-                        else if (cqgDataManagement.check_cqg_status_fail())
-                        {
-                            MongoDBConnectionAndSetup.MongoFailureMethod("ERROR: CQG Failure");
-                        }
-                        //else
-                        //{
-
-                        //    int staleCount = 0;
-
-                        //    ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
-
-                        //    foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
-                        //    {
-                        //        var testMinutes = (DateTime.Now -
-                        //                    ose.lastTimeFuturePriceUpdated).TotalMinutes;
-
-                        //        if (testMinutes > 15)
-                        //        {
-                        //            ose.staleData = STALE_DATA_INDICATORS.VERY_STALE;
-
-                        //            staleCount++;
-                        //        }
-                        //        else if (testMinutes > 5)
-                        //        {
-                        //            ose.staleData = STALE_DATA_INDICATORS.MILDLY_STALE;
-                        //        }
-                        //        else
-                        //        {
-                        //            ose.staleData = STALE_DATA_INDICATORS.UP_TO_DATE;
-                        //        }
-
-                        //        if (testMinutes > 30)
-                        //        {
-                        //            queueOfOSE.Enqueue(ose);
-
-                        //        }
-                        //    }
-
-                        //    if (queueOfOSE.Count > 0)
-                        //    {
-                        //        lock (AsyncTaskListener._InSetupAndConnectionMode)
-                        //        {
-                        //            if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
-                        //            {
-                        //                AsyncTaskListener.Set_subscription_mode_value(true);
-
-                        //                //ThreadSafeGenericDelegateWithParams d = new ThreadSafeGenericDelegateWithParams(cqgDataManagement.sendSubscribeRequestRun);
-
-                        //                //this.Invoke(d, queueOfOSE);
-                                        
-                        //                cqgDataManagement.sendSubscribeRequest(queueOfOSE);
-
-
-                        //                AsyncTaskListener.Set_subscription_mode_value(false);
-                        //            }
-                        //        }
-                        //    }
-                        //}
+                        MongoDBConnectionAndSetup.MongoFailureMethod("CQG Timer Restart");
                     }
+                    else if (cqgDataManagement.check_cqg_status_fail())
+                    {
+                        MongoDBConnectionAndSetup.MongoFailureMethod("ERROR: CQG Failure");
+                    }
+                    else
+                    {
+
+                        int staleCount = 0;
+
+                        ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
+
+                        foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+                        {
+                            var testMinutes = (DateTime.Now -
+                                        ose.lastTimeFuturePriceUpdated).TotalMinutes;
+
+                            if (testMinutes > 15)
+                            {
+                                ose.staleData = STALE_DATA_INDICATORS.VERY_STALE;
+
+                                staleCount++;
+                            }
+                            else if (testMinutes > 5)
+                            {
+                                ose.staleData = STALE_DATA_INDICATORS.MILDLY_STALE;
+                            }
+                            else
+                            {
+                                ose.staleData = STALE_DATA_INDICATORS.UP_TO_DATE;
+                            }
+
+                            if (testMinutes > 30)
+                            {
+                                queueOfOSE.Enqueue(ose);
+
+                            }
+                        }
+
+                        if (queueOfOSE.Count > 0)
+                        {
+                            //lock (AsyncTaskListener._InSetupAndConnectionMode)
+                            //{
+                            //    if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
+                            //    {
+                            //AsyncTaskListener.Set_subscription_mode_value(true);
+
+                            //ThreadSafeGenericDelegateWithParams d = new ThreadSafeGenericDelegateWithParams(cqgDataManagement.sendSubscribeRequestRun);
+
+                            //this.Invoke(d, queueOfOSE);
+
+                            cqgDataManagement.sendSubscribeRequest(queueOfOSE);
+
+
+                            //        AsyncTaskListener.Set_subscription_mode_value(false);
+                            //    }
+                            //}
+                        }
+                    }
+                    //}
                 }
 
             }
@@ -645,36 +645,37 @@ namespace DataSupervisorForModel
 
         private void btnCallAllInstruments_Click(object sender, EventArgs e)
         {
-            if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
-            {
+            StartDataCollectionSystem(false);
+            //if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
+            //{
 
-                ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
+            //    ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
 
-                foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
-                {
-                    queueOfOSE.Enqueue(ose);
-                }
+            //    foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+            //    {
+            //        queueOfOSE.Enqueue(ose);
+            //    }
 
-                if (queueOfOSE.Count > 0)
-                {
-                    lock (AsyncTaskListener._InSetupAndConnectionMode)
-                    {
-                        if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
-                        {
-                            AsyncTaskListener.Set_subscription_mode_value(true);
+            //    if (queueOfOSE.Count > 0)
+            //    {
+            //        lock (AsyncTaskListener._InSetupAndConnectionMode)
+            //        {
+            //            if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
+            //            {
+            //                AsyncTaskListener.Set_subscription_mode_value(true);
 
-                            //ThreadSafeGenericDelegateWithParams d = new ThreadSafeGenericDelegateWithParams(cqgDataManagement.sendSubscribeRequestRun);
+            //                //ThreadSafeGenericDelegateWithParams d = new ThreadSafeGenericDelegateWithParams(cqgDataManagement.sendSubscribeRequestRun);
 
-                            //this.Invoke(d, queueOfOSE);
+            //                //this.Invoke(d, queueOfOSE);
 
-                            cqgDataManagement.sendSubscribeRequest(queueOfOSE);
+            //                cqgDataManagement.sendSubscribeRequest(queueOfOSE);
 
 
-                            AsyncTaskListener.Set_subscription_mode_value(false);
-                        }
-                    }
-                }
-            }
+            //                AsyncTaskListener.Set_subscription_mode_value(false);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private void btnCQGRecon_Click(object sender, EventArgs e)
@@ -720,77 +721,90 @@ namespace DataSupervisorForModel
                 AsyncTaskListener.StatusUpdateAsync(
                     "Starting Up...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
 
-                if (AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
+                AsyncTaskListener.LogMessageAsync("Data collection will start momentarily...");
+
+                lock (AsyncTaskListener._InSetupAndConnectionMode)
                 {
-
-                    bool setupCorrectly = SetupInstrumentAndContractListToCollect();
-
-                    int setupCount = 1;
-
-                    AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                    if (setupCorrectly)
+                    if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
                     {
-                        foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+                        AsyncTaskListener.Set_setup_connection_mode_value(true);
+
+                        AsyncTaskListener.LogMessageAsync("Data collection started will continue after resetting contracts to collect...");
+
+                        bool setupCorrectly = SetupInstrumentAndContractListToCollect();
+
+                        int setupCount = 1;
+
+                        AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                        if (setupCorrectly)
                         {
-                            AsyncTaskListener.ExpressionListUpdateAsync(ose);
-                        }
-
-                        AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                        if (initialize)
-                        {
-                            cqgDataManagement.initializeCQGAndCallbacks(null);
-                        }
-
-                        AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                        AsyncTaskListener.Set_setup_connection_mode_value(false);
-
-                        AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                        //AsyncTaskListener.StatusUpdateAsync(
-                        //    "Making Call To Data...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
-
-                        ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
-
-                        foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
-                        {
-                            queueOfOSE.Enqueue(ose);
-                        }
-
-                        AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                        if (queueOfOSE.Count > 0)
-                        {
-                            lock (AsyncTaskListener._InSetupAndConnectionMode)
+                            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
                             {
-                                if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
-                                {
-                                    AsyncTaskListener.LogMessageAsync($"Setting Up {setupCount++}");
-
-                                    AsyncTaskListener.Set_subscription_mode_value(true);
-
-
-                                    cqgDataManagement.sendSubscribeRequest(queueOfOSE);
-
-
-                                    AsyncTaskListener.Set_subscription_mode_value(false);
-                                }
+                                AsyncTaskListener.ExpressionListUpdateAsync(ose);
                             }
-                        }
 
+                            AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                            if (initialize)
+                            {
+                                cqgDataManagement.initializeCQGAndCallbacks(null);
+                            }
+
+                            AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                            //AsyncTaskListener.Set_setup_connection_mode_value(false);
+
+                            AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                            //AsyncTaskListener.StatusUpdateAsync(
+                            //    "Making Call To Data...", STATUS_FORMAT.CAUTION, STATUS_TYPE.DATA_SUBSCRIPTION_STATUS);
+
+                            ConcurrentQueue<OptionSpreadExpression> queueOfOSE = new ConcurrentQueue<OptionSpreadExpression>();
+
+                            foreach (OptionSpreadExpression ose in DataCollectionLibrary.optionSpreadExpressionList)
+                            {
+                                queueOfOSE.Enqueue(ose);
+                            }
+
+                            AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                            if (queueOfOSE.Count > 0)
+                            {
+                                //lock (AsyncTaskListener._InSetupAndConnectionMode)
+                                //{
+                                //    if (!AsyncTaskListener._InSetupAndConnectionMode.subscription_mode_value)
+                                //    {
+                                AsyncTaskListener.LogMessageAsync($"Data collection Setting Up {setupCount++}");
+
+                                //AsyncTaskListener.Set_subscription_mode_value(true);
+
+
+                                cqgDataManagement.sendSubscribeRequest(queueOfOSE);
+
+
+                                //        AsyncTaskListener.Set_subscription_mode_value(false);
+                                //    }
+                                //}
+                            }
+
+                        }
+                        else
+                        {
+                            AsyncTaskListener.LogMessageAsync("Network or Startup Error; Check VPN");
+                        }
                     }
-                    else
-                    {
-                        AsyncTaskListener.LogMessageAsync("Network or Startup Error; Check VPN");
-                    }
+
                 }
             }
             catch (Exception ex)
             {
                 //TSErrorCatch.errorCatchOut(Convert.ToString(this), ex);
                 AsyncTaskListener.LogMessageAsync(ex.ToString());
+            }
+            finally
+            {
+                AsyncTaskListener.Set_setup_connection_mode_value(false);
             }
         }
 

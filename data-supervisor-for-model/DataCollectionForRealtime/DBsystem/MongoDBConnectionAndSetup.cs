@@ -248,23 +248,23 @@ namespace DataSupervisorForModel
 
         internal static void MongoFailureMethod(string errorMessage = "")
         {
-            lock (AsyncTaskListener._InSetupAndConnectionMode)
-            {
-                if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
-                {
-                    AsyncTaskListener.Set_setup_connection_mode_value(true);
+            //lock (AsyncTaskListener._InSetupAndConnectionMode)
+            //{
+            //    if (!AsyncTaskListener._InSetupAndConnectionMode.setup_mode_value)
+            //    {
+                    //AsyncTaskListener.Set_setup_connection_mode_value(true);
 
                     //AsyncTaskListener.LogMessageAsync(errorMessage);
 
-                    AsyncTaskListener.LogMessageAsync($"CQG API Connection restarted. \n{errorMessage}. \nThe program is attempting a complete recycle.");
+            AsyncTaskListener.LogMessageAsync($"CQG API Connection restarted. \n{errorMessage}. \nThe program is attempting a complete recycle.");
 
-                    AsyncTaskListener.UpdateCQGDataManagementAsync();
+            AsyncTaskListener.UpdateCQGDataManagementAsync();
 
                     
 
-                    AsyncTaskListener.Set_setup_connection_mode_value(false);
-                }
-            }
+            //        AsyncTaskListener.Set_setup_connection_mode_value(false);
+            //    }
+            //}
         }
 
 
@@ -272,7 +272,7 @@ namespace DataSupervisorForModel
             //ref Dictionary<long, List<Contract>> contractHashTableByInstId,
             DateTime todaysDate)
         {
-            const int NUMBER_OF_FORWARD_CONTRACTS = 3;
+            const int NUMBER_OF_FORWARD_CONTRACTS = 4;
 
 
             Dictionary<long, List<Contract>> contractHashTableByInstId = new Dictionary<long, List<Contract>>();

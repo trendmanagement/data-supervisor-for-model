@@ -101,3 +101,4 @@ C:\Users\Steve Pickering\Desktop\MAIN TMQR FRAMEWORK\data-supervisor-for-model\d
 C:\Users\Steve Pickering\Desktop\MAIN TMQR FRAMEWORK\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.pdb
 C:\Users\Steve Pickering\Desktop\MAIN TMQR FRAMEWORK\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\log4net.dll
 C:\Users\Steve Pickering\Desktop\MAIN TMQR FRAMEWORK\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\bin\Debug\log4net.xml
+C:\Users\Steve Pickering\Desktop\MAIN TMQR FRAMEWORK\data-supervisor-for-model\data-supervisor-for-model\DataCollectionForRealtime\obj\Debug\DataSupervisorForModel.csprojResolveAssemblyReference.cache
